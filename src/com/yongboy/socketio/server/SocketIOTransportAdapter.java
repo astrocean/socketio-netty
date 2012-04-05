@@ -33,7 +33,6 @@ import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
-import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.handler.ssl.SslHandler;
@@ -141,48 +140,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 		// eg:http://localhost/socket.io/1/?t=1332308953338
 		if (reqURI.matches("/.*/\\d{1}/([^/]*)?")) {
-			HttpResponse resp = SocketIOManager.getInitResponse(req);
-			resp.setStatus(HttpResponseStatus.OK);
-			resp.addHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
-
-			final String uID = getUniqueID();
-			String contentString = String.format(
-					SocketIOManager.getHandshakeResult(), uID);
-
-			QueryStringDecoder queryStringDecoder = new QueryStringDecoder(
-					reqURI);
-
-			String jsonpValue = getParameter(queryStringDecoder, "jsonp");
-			// io.j[1]("9135478181958205332:60:60:websocket,flashsocket");
-			if (jsonpValue != null) {
-				log.debug("request uri with parameter jsonp = " + jsonpValue);
-				contentString = "io.j[" + jsonpValue + "]('" + contentString
-						+ "');";
-				resp.addHeader(CONTENT_TYPE, "application/javascript");
-			}
-
-			ChannelBuffer content = ChannelBuffers.copiedBuffer(contentString,
-					CharsetUtil.UTF_8);
-
-			resp.addHeader(HttpHeaders.Names.CONNECTION,
-					HttpHeaders.Values.KEEP_ALIVE);
-			resp.setContent(content);
-
-			e.getChannel().write(resp).addListener(ChannelFutureListener.CLOSE);
-
-			Store store = SocketIOManager.getDefaultStore();
-			store.add(uID, BlankIO.getInstance());
-
-			SocketIOManager.schedule(new Runnable() {
-				@Override
-				public void run() {
-					Store store = SocketIOManager.getDefaultStore();
-					IOClient client = store.get(uID);
-					if (client == null)
-						store.remove(uID);
-				}
-			});
-
+			handleHandshake(req, e, reqURI);
 			return;
 		}
 
@@ -195,6 +153,49 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 		sendHttpResponse(ctx, req,
 				SocketIOManager.getInitResponse(req, FORBIDDEN));
+	}
+
+	private void handleHandshake(HttpRequest req, MessageEvent e, String reqURI) {
+		HttpResponse resp = SocketIOManager.getInitResponse(req);
+		resp.addHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
+
+		final String uID = getUniqueID();
+		String contentString = String.format(
+				SocketIOManager.getHandshakeResult(), uID);
+
+		QueryStringDecoder queryStringDecoder = new QueryStringDecoder(
+				reqURI);
+
+		String jsonpValue = getParameter(queryStringDecoder, "jsonp");
+		// io.j[1]("9135478181958205332:60:60:websocket,flashsocket");
+		if (jsonpValue != null) {
+			log.debug("request uri with parameter jsonp = " + jsonpValue);
+			contentString = "io.j[" + jsonpValue + "]('" + contentString
+					+ "');";
+			resp.addHeader(CONTENT_TYPE, "application/javascript");
+		}
+
+		ChannelBuffer content = ChannelBuffers.copiedBuffer(contentString,
+				CharsetUtil.UTF_8);
+
+		resp.addHeader(HttpHeaders.Names.CONNECTION,
+				HttpHeaders.Values.KEEP_ALIVE);
+		resp.setContent(content);
+
+		e.getChannel().write(resp).addListener(ChannelFutureListener.CLOSE);
+
+		Store store = SocketIOManager.getDefaultStore();
+		store.add(uID, BlankIO.getInstance());
+
+		SocketIOManager.schedule(new Runnable() {
+			@Override
+			public void run() {
+				Store store = SocketIOManager.getDefaultStore();
+				IOClient client = store.get(uID);
+				if (client == null)
+					store.remove(uID);
+			}
+		});
 	}
 
 	private static String getParameter(QueryStringDecoder queryStringDecoder,
