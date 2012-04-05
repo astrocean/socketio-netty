@@ -9,7 +9,7 @@ import com.yongboy.socketio.server.transport.BlankIO;
 import com.yongboy.socketio.server.transport.IOClient;
 
 /**
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-29
  * @version 1.0
  */

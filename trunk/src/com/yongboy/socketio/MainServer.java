@@ -10,7 +10,7 @@ import com.yongboy.socketio.server.SocketIOServer;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-29
  * @version 1.0
  */
@@ -37,7 +37,7 @@ public class MainServer {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 */
@@ -59,7 +59,7 @@ public class MainServer {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 */

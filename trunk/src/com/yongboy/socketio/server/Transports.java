@@ -2,7 +2,7 @@ package com.yongboy.socketio.server;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-4-1
  * @version 1.0
  */

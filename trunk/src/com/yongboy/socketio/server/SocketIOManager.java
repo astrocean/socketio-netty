@@ -17,7 +17,7 @@ import org.jboss.netty.handler.codec.http.HttpVersion;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-28
  * @version 1.0
  */
@@ -61,7 +61,7 @@ public class SocketIOManager {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 * @return
@@ -72,7 +72,7 @@ public class SocketIOManager {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-28
 	 * 
 	 * @param runnable
@@ -84,7 +84,7 @@ public class SocketIOManager {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-28
 	 * 
 	 * @return
@@ -99,7 +99,7 @@ public class SocketIOManager {
 	/**
 	 * 统一控制是否跨域请求等
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-28
 	 * 
 	 * @param req
@@ -111,7 +111,7 @@ public class SocketIOManager {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-28
 	 * 
 	 * @param req
@@ -133,7 +133,7 @@ public class SocketIOManager {
 	}
 
 	/**
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-3
 	 * 
 	 * @param runnable
@@ -147,7 +147,7 @@ public class SocketIOManager {
 	/**
 	 * 得到文件名
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-5
 	 * 
 	 * @param filename

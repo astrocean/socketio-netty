@@ -5,7 +5,7 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-28
  * @version 1.0
  */

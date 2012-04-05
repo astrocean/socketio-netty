@@ -213,7 +213,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-28
 	 * 
 	 * @param req

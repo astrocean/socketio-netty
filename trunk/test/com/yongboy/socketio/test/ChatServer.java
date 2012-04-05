@@ -4,7 +4,7 @@ import com.yongboy.socketio.MainServer;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-27
  * @version 1.0
  */
