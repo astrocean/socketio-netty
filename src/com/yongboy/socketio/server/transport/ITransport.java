@@ -102,7 +102,10 @@ public abstract class ITransport {
 		String sessionId = getSessionId(req);
 
 		// check session id exist
-		if (!this.store.checkExist(sessionId)) {
+		// 在safari中，会导致一直循环
+		String userAgent = req.getHeader("User-Agent");
+		
+		if (!(userAgent != null && userAgent.contains("Safari")) && !this.store.checkExist(sessionId)) {
 			handleInvalidRequest(req, e);
 			return;
 		}
@@ -126,6 +129,7 @@ public abstract class ITransport {
 		boolean isNew = false;
 		if (client == null) {
 			log.debug("the client is null with id : " + sessionId);
+			ctx.setAttachment(this.handler);
 			client = doPrepareI0Client(ctx, req, sessionId);
 
 			store.add(sessionId, client);
@@ -134,6 +138,7 @@ public abstract class ITransport {
 		}
 		
 		if(!reqURI.contains("/" + client.getId() + "/")){
+			store.remove(sessionId);
 			doHandle(ctx, req, e);
 			return;
 		}
