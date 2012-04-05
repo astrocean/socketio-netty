@@ -141,7 +141,7 @@ public class SocketIOManager {
 	 */
 	public static ScheduledFuture<?> scheduleClearTask(Runnable runnable) {
 		return scheduledExecutorService
-				.schedule(runnable, 45, TimeUnit.SECONDS);
+				.schedule(runnable, option.heartbeat_timeout, TimeUnit.SECONDS);
 	}
 
 	/**
