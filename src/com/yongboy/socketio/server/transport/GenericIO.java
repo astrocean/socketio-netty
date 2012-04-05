@@ -9,6 +9,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
+import com.yongboy.socketio.server.IOHandlerAbs;
 import com.yongboy.socketio.server.SocketIOManager;
 import com.yongboy.socketio.server.Store;
 
@@ -36,7 +37,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 		this.req = req;
 		this.uID = uID;
 		this.open = true;
-		
+
 		queue = new LinkedBlockingQueue<String>();
 	}
 
@@ -74,10 +75,10 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 		// 清除已有定时器
 		log.debug("scheduledFuture is null ? " + (scheduledFuture == null));
 		if (scheduledFuture != null) {
-			if (!(scheduledFuture.isCancelled() || scheduledFuture.isDone())){
+			if (!(scheduledFuture.isCancelled() || scheduledFuture.isDone())) {
 				log.debug("going to cancel the task ~");
 				scheduledFuture.cancel(true);
-			}else{
+			} else {
 				log.debug("scheduledFuture had been canceled");
 			}
 		}
@@ -133,7 +134,18 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 				return;
 			}
 
-			log.debug("now remove the clients from store with sessionid " + sessionId);
+			log.debug("now remove the clients from store with sessionid "
+					+ sessionId);
+
+			ChannelHandlerContext ctx = client.getCTX();
+			if (ctx != null) {
+				IOHandlerAbs handler = (IOHandlerAbs) ctx.getAttachment();
+				if (handler != null) {
+					handler.OnDisconnect(client);
+				}
+			}
+
+			client.disconnect();
 			store.remove(sessionId);
 		}
 	}
