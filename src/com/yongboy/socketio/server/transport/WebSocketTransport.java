@@ -124,7 +124,7 @@ public class WebSocketTransport extends ITransport {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-30
 	 * 
 	 * @return
@@ -141,7 +141,7 @@ public class WebSocketTransport extends ITransport {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-30
 	 * 
 	 * @param req

@@ -8,7 +8,7 @@ import com.yongboy.socketio.server.transport.IOClient;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-29
  * @version 1.0
  */
@@ -16,7 +16,7 @@ public interface Store {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 * @param sessionId
@@ -25,7 +25,7 @@ public interface Store {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 * @param sessionId
@@ -35,7 +35,7 @@ public interface Store {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 * @return
@@ -43,7 +43,7 @@ public interface Store {
 	Collection<IOClient> getClients();
 
 	/**
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 * @param sessionId
@@ -53,7 +53,7 @@ public interface Store {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-3
 	 * 
 	 * @param sessionId
@@ -63,7 +63,7 @@ public interface Store {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-31
 	 * 
 	 * @param ctx

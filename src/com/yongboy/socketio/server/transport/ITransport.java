@@ -28,7 +28,7 @@ import com.yongboy.socketio.server.Store;
 /**
  * 定义抽象Transport
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-26
  * @version 1.0
  */
@@ -44,7 +44,7 @@ public abstract class ITransport {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-26
 	 * 
 	 * @param uri
@@ -56,7 +56,7 @@ public abstract class ITransport {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-26
 	 * 
 	 * @return
@@ -66,7 +66,7 @@ public abstract class ITransport {
 	/**
 	 * 在初始化GenericIOClient实例，并返回
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 * @param ctx
@@ -79,7 +79,7 @@ public abstract class ITransport {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 * @param ctx
@@ -224,7 +224,7 @@ public abstract class ITransport {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-1
 	 * 
 	 * @param ctx
@@ -269,7 +269,7 @@ public abstract class ITransport {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-30
 	 * 
 	 * @param client
@@ -342,7 +342,7 @@ public abstract class ITransport {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-26
 	 * 
 	 * @param req

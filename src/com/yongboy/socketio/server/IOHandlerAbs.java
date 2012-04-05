@@ -9,7 +9,7 @@ import com.yongboy.socketio.server.transport.IOClient;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-30
  * @version 1.0
  */
@@ -18,7 +18,7 @@ public abstract class IOHandlerAbs implements IOHandler {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-31
 	 * 
 	 * @return
@@ -40,7 +40,7 @@ public abstract class IOHandlerAbs implements IOHandler {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-31
 	 * 
 	 * @param current
@@ -59,7 +59,7 @@ public abstract class IOHandlerAbs implements IOHandler {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-31
 	 * 
 	 */

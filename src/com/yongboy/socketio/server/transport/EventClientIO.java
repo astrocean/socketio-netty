@@ -10,7 +10,7 @@ import com.yongboy.socketio.server.SocketIOManager;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-4-1
  * @version 1.0
  */

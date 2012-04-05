@@ -15,7 +15,7 @@ import org.jboss.netty.util.Timer;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-27
  * @version 1.0
  */
@@ -33,7 +33,7 @@ public class FlashSecurityServer {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 */
@@ -64,7 +64,7 @@ public class FlashSecurityServer {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-29
 	 * 
 	 */

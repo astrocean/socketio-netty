@@ -3,7 +3,7 @@ package com.yongboy.socketio.server.transport;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
 /**
- * @author nieyong
+ * @author yongboy
  * @time 2012-4-3
  * @version 1.0
  */

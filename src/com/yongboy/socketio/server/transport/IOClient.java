@@ -4,7 +4,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-27
  * @version 1.0
  */
@@ -12,7 +12,7 @@ public interface IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 * @param message
@@ -21,7 +21,7 @@ public interface IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 * @param message
@@ -30,7 +30,7 @@ public interface IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 * @param beat
@@ -40,7 +40,7 @@ public interface IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 */
@@ -48,7 +48,7 @@ public interface IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 */
@@ -56,7 +56,7 @@ public interface IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 * @return
@@ -65,7 +65,7 @@ public interface IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-27
 	 * 
 	 * @return
@@ -76,7 +76,7 @@ public interface IOClient {
 	 * return the self's description id ,eg :
 	 * xhr-polling/jsonp-polling/websocket
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-1
 	 * 
 	 * @return
@@ -85,7 +85,7 @@ public interface IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-3
 	 * 
 	 * @return
@@ -94,7 +94,7 @@ public interface IOClient {
 	
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-3
 	 *
 	 * @param open

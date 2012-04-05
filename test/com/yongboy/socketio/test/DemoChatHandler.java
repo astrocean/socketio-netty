@@ -16,7 +16,7 @@ import com.yongboy.socketio.server.transport.IOClient;
 /**
  * (改写)socket.io 提供chat示范
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-30
  * @version 1.0
  */
@@ -100,7 +100,7 @@ public class DemoChatHandler extends IOHandlerAbs {
 	/**
 	 * 处理用户名的通知
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-31
 	 * 
 	 * @param client

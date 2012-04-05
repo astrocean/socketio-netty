@@ -11,7 +11,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 /**
  * 调用入口
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-23
  * @version 1.0
  */

@@ -13,7 +13,7 @@ import org.jboss.netty.util.CharsetUtil;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-29
  * @version 1.0
  */

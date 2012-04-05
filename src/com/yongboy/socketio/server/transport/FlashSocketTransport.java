@@ -8,7 +8,7 @@ import com.yongboy.socketio.server.Transports;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-29
  * @version 1.0
  */

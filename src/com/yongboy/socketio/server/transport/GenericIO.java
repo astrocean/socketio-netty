@@ -14,7 +14,7 @@ import com.yongboy.socketio.server.Store;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-27
  * @version 1.0
  */
@@ -85,7 +85,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 
 	/**
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-4
 	 * @version 1.0
 	 */
@@ -173,7 +173,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	/**
 	 * 预先执行一些操作
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-23
 	 * 
 	 */
@@ -184,7 +184,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	/**
 	 * 1:: 在初次连接时调用
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-23
 	 * 
 	 */
@@ -195,7 +195,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	/**
 	 * 0 :: 连接时
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-23
 	 * 
 	 * @param info
@@ -207,7 +207,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	/**
 	 * 定义POST方式定时心跳检测，输出值
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-3-23
 	 * 
 	 */

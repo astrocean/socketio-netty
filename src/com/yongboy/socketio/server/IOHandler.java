@@ -4,7 +4,7 @@ import com.yongboy.socketio.server.transport.IOClient;
 
 /**
  * 
- * @author nieyong
+ * @author yongboy
  * @time 2012-3-23
  * @version 1.0
  */
