@@ -62,19 +62,7 @@ public class JsonpIO extends GenericIO {
 		}
 
 		try {
-			QueryStringDecoder queryStringDecoder = new QueryStringDecoder(
-					req.getUri());
-
-			List<String> paras = queryStringDecoder.getParameters().get("i");
-			String iString = null;
-			if (paras == null || paras.isEmpty()) {
-				iString = "0";
-			} else {
-				iString = paras.get(0);
-			}
-
-			log.debug("format json message : "
-					+ String.format(TEMPLATE, iString, message));
+			String iString = getTargetFormatMessage(message);
 			_write(String.format(TEMPLATE, iString, message));
 		} catch (Exception e) {
 			log.info("Exception " + e.toString());
@@ -92,8 +80,28 @@ public class JsonpIO extends GenericIO {
 	 */
 	@Override
 	public void heartbeat() {
+		if (!this.open) {
+			scheduleClearTask();
+			return;
+		}
+
 		prepareHearbeat();
-		// 若无消息，则阻塞，直到返回false ;; polling方式
+
+		Channel chan = ctx.getChannel();
+		if (!chan.isOpen()) {
+			this.open = false;
+			scheduleClearTask();
+			return;
+		}
+
+		HttpResponse res = SocketIOManager.getInitResponse(req);
+		res.addHeader(CONTENT_TYPE, "text/javascript; charset=UTF-8");
+		res.addHeader(HttpHeaders.Names.CONNECTION,
+				HttpHeaders.Values.KEEP_ALIVE);
+		res.addHeader("X-XSS-Protection", "0");
+		chan.write(res);
+
+		// 若无消息，则阻塞，直到返回false
 		String message = null;
 		try {
 			message = queue.poll(19996L, TimeUnit.MILLISECONDS);
@@ -104,9 +112,31 @@ public class JsonpIO extends GenericIO {
 		if (message == null) {
 			message = "8::";
 		}
+		
+		String templateMessage = getTargetFormatMessage(message);
+		
+		chan.write(ChannelBuffers.copiedBuffer(templateMessage, CharsetUtil.UTF_8))
+				.addListener(ChannelFutureListener.CLOSE);
 
 		scheduleClearTask();
-		sendDirectMessage(message);
+	}
+
+	private String getTargetFormatMessage(String message) {
+		QueryStringDecoder queryStringDecoder = new QueryStringDecoder(
+				req.getUri());
+
+		List<String> paras = queryStringDecoder.getParameters().get("i");
+		String iString = null;
+		if (paras == null || paras.isEmpty()) {
+			iString = "0";
+		} else {
+			iString = paras.get(0);
+		}
+
+		log.debug("format json message : "
+				+ String.format(TEMPLATE, iString, message));
+		
+		return String.format(TEMPLATE, iString, message);
 	}
 
 	@Override

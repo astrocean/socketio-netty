@@ -78,7 +78,26 @@ public class XhrIO extends GenericIO {
 	 */
 	@Override
 	public void heartbeat() {
+		if (!this.open) {
+			scheduleClearTask();
+			return;
+		}
+
 		prepareHearbeat();
+
+		Channel chan = ctx.getChannel();
+		if (!chan.isOpen()) {
+			this.open = false;
+			scheduleClearTask();
+			return;
+		}
+
+		HttpResponse res = SocketIOManager.getInitResponse(req);
+		res.addHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
+		res.addHeader(HttpHeaders.Names.CONNECTION,
+				HttpHeaders.Values.KEEP_ALIVE);
+
+		chan.write(res);
 
 		// 若无消息，则阻塞，直到返回false
 		String message = null;
@@ -91,10 +110,10 @@ public class XhrIO extends GenericIO {
 		if (message == null) {
 			message = "8::";
 		}
+		chan.write(ChannelBuffers.copiedBuffer(message, CharsetUtil.UTF_8))
+				.addListener(ChannelFutureListener.CLOSE);
 
 		scheduleClearTask();
-
-		sendDirectMessage(message);
 	}
 
 	@Override
