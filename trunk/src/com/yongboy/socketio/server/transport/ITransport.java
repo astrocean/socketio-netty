@@ -2,7 +2,6 @@ package com.yongboy.socketio.server.transport;
 
 import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 
 import java.util.List;
 
@@ -17,6 +16,7 @@ import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.util.CharsetUtil;
@@ -103,9 +103,9 @@ public abstract class ITransport {
 
 		// check session id exist
 		// 在safari中，会导致一直循环
-		String userAgent = req.getHeader("User-Agent");
-		
-		if (!(userAgent != null && userAgent.contains("Safari")) && !this.store.checkExist(sessionId)) {
+//		String userAgent = req.getHeader("User-Agent");
+
+		if (!this.store.checkExist(sessionId)) {
 			handleInvalidRequest(req, e);
 			return;
 		}
@@ -116,7 +116,7 @@ public abstract class ITransport {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
+
 		String reqURI = req.getUri();
 		// 主动要求断开
 		if (reqURI.contains("?disconnect") || reqURI.contains("&disconnect")) {
@@ -136,9 +136,11 @@ public abstract class ITransport {
 			this.handler.OnConnect(client);
 			isNew = true;
 		}
-		
-		if(!reqURI.contains("/" + client.getId() + "/")){
+
+		if (!reqURI.contains("/" + client.getId() + "/")) {
 			store.remove(sessionId);
+			// 避免在if (!this.store.checkExist(sessionId)) 处陷入循环
+			store.add(sessionId, BlankIO.getInstance());
 			doHandle(ctx, req, e);
 			return;
 		}
@@ -146,19 +148,19 @@ public abstract class ITransport {
 		// 需要切换到每一个具体的transport中
 		if (req.getMethod() == HttpMethod.GET) { // 非第一次请求时
 			// 判断session id一致，但对应ID已经变化
-//			Transports transport = Transports.getByValue(client.getId());
-//			if (transport == null)
-//				return;
-//
-//			if (!transport.checkPattern(req.getUri())) {
-//				log.debug(req.getUri() + " does not contains " + client.getId());
-//				store.remove(client.getSessionID());
-//				client = null;
-//
-//				doHandle(ctx, req, e);
-//
-//				return;
-//			}
+			// Transports transport = Transports.getByValue(client.getId());
+			// if (transport == null)
+			// return;
+			//
+			// if (!transport.checkPattern(req.getUri())) {
+			// log.debug(req.getUri() + " does not contains " + client.getId());
+			// store.remove(client.getSessionID());
+			// client = null;
+			//
+			// doHandle(ctx, req, e);
+			//
+			// return;
+			// }
 
 			if (!isNew) {
 				client.reconnect(ctx, req);
@@ -190,25 +192,26 @@ public abstract class ITransport {
 	}
 
 	private void handleInvalidRequest(HttpRequest req, MessageEvent e) {
-		QueryStringDecoder queryStringDecoder = new QueryStringDecoder(
-				req.getUri());
-		HttpResponse resp = SocketIOManager.getInitResponse(req);
-		String respContent = "7:::[\"invalide request\"]";
-
-		String jsonpValue = getParameter(queryStringDecoder, "jsonp");
-		// io.j[1]("9135478181958205332:60:60:websocket,flashsocket");
-		if (jsonpValue != null) {
-			log.debug("request uri with parameter jsonp = " + jsonpValue);
-			respContent = "io.j[" + jsonpValue + "]('" + respContent
-					+ "');";
-			resp.addHeader(CONTENT_TYPE, "application/javascript");
-		}
-
-		resp.addHeader(HttpHeaders.Names.CONNECTION,
-				HttpHeaders.Values.KEEP_ALIVE);
-		resp.setContent(ChannelBuffers.copiedBuffer(respContent,
-				CharsetUtil.UTF_8));
-		setContentLength(resp, resp.getContent().readableBytes());
+		// QueryStringDecoder queryStringDecoder = new QueryStringDecoder(
+		// req.getUri());
+		HttpResponse resp = SocketIOManager.getInitResponse(req,
+				HttpResponseStatus.FORBIDDEN);
+		// String respContent = "7:::[\"invalide request\"]";
+		//
+		// String jsonpValue = getParameter(queryStringDecoder, "jsonp");
+		// // io.j[1]("9135478181958205332:60:60:websocket,flashsocket");
+		// if (jsonpValue != null) {
+		// log.debug("request uri with parameter jsonp = " + jsonpValue);
+		// respContent = "io.j[" + jsonpValue + "]('" + respContent
+		// + "');";
+		// resp.addHeader(CONTENT_TYPE, "application/javascript");
+		// }
+		//
+		// resp.addHeader(HttpHeaders.Names.CONNECTION,
+		// HttpHeaders.Values.KEEP_ALIVE);
+		// resp.setContent(ChannelBuffers.copiedBuffer(respContent,
+		// CharsetUtil.UTF_8));
+		// setContentLength(resp, resp.getContent().readableBytes());
 
 		e.getChannel().write(resp).addListener(ChannelFutureListener.CLOSE);
 	}
