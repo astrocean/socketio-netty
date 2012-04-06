@@ -43,7 +43,7 @@ public class HtmlfileTransport extends ITransport {
 		client.prepare();
 		client.connect(null);
 
-		client.heartbeat();
+		client.heartbeat(this.handler);
 
 		return client;
 	}

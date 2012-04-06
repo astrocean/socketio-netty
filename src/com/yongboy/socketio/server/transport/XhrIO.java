@@ -5,6 +5,7 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -18,10 +19,12 @@ import org.jboss.netty.util.CharsetUtil;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
+import com.yongboy.socketio.server.IOHandler;
 import com.yongboy.socketio.server.SocketIOManager;
 import com.yongboy.socketio.server.Transports;
 
 public class XhrIO extends GenericIO {
+	private static final Logger log = Logger.getLogger(XhrIO.class);
 	private static final Timer timer = new HashedWheelTimer();
 
 	public XhrIO(ChannelHandlerContext ctx, HttpRequest req, String uID) {
@@ -77,9 +80,9 @@ public class XhrIO extends GenericIO {
 	 * @see com.yongboy.socketio.client.GenericIOClient#heartbeat()
 	 */
 	@Override
-	public void heartbeat() {
+	public void heartbeat(final IOHandler handler) {
 		if (!this.open) {
-			scheduleClearTask();
+			scheduleClearTask(handler);
 			return;
 		}
 
@@ -88,7 +91,7 @@ public class XhrIO extends GenericIO {
 		Channel chan = ctx.getChannel();
 		if (!chan.isOpen()) {
 			this.open = false;
-			scheduleClearTask();
+			scheduleClearTask(handler);
 			return;
 		}
 
@@ -110,10 +113,15 @@ public class XhrIO extends GenericIO {
 		if (message == null) {
 			message = "8::";
 		}
-		chan.write(ChannelBuffers.copiedBuffer(message, CharsetUtil.UTF_8))
-				.addListener(ChannelFutureListener.CLOSE);
+		try {
+			chan.write(ChannelBuffers.copiedBuffer(message, CharsetUtil.UTF_8))
+					.addListener(ChannelFutureListener.CLOSE);
+		} catch (Exception e) {
+			log.debug("java.io.IOException: 远程主机强迫关闭了一个现有的连接。");
+			e.printStackTrace();
+		}
 
-		scheduleClearTask();
+		scheduleClearTask(handler);
 	}
 
 	@Override

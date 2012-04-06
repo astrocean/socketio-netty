@@ -18,6 +18,7 @@ import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.jboss.netty.util.CharsetUtil;
 
+import com.yongboy.socketio.server.IOHandler;
 import com.yongboy.socketio.server.SocketIOManager;
 import com.yongboy.socketio.server.Transports;
 
@@ -63,7 +64,7 @@ public class JsonpIO extends GenericIO {
 
 		try {
 			String iString = getTargetFormatMessage(message);
-			_write(String.format(TEMPLATE, iString, message));
+			_write(iString);
 		} catch (Exception e) {
 			log.info("Exception " + e.toString());
 			e.printStackTrace();
@@ -79,9 +80,9 @@ public class JsonpIO extends GenericIO {
 	 * @see com.yongboy.socketio.client.GenericIOClient#heartbeat()
 	 */
 	@Override
-	public void heartbeat() {
+	public void heartbeat(final IOHandler handler) {
 		if (!this.open) {
-			scheduleClearTask();
+			scheduleClearTask(handler);
 			return;
 		}
 
@@ -90,7 +91,7 @@ public class JsonpIO extends GenericIO {
 		Channel chan = ctx.getChannel();
 		if (!chan.isOpen()) {
 			this.open = false;
-			scheduleClearTask();
+			scheduleClearTask(handler);
 			return;
 		}
 
@@ -112,13 +113,14 @@ public class JsonpIO extends GenericIO {
 		if (message == null) {
 			message = "8::";
 		}
-		
+
 		String templateMessage = getTargetFormatMessage(message);
-		
-		chan.write(ChannelBuffers.copiedBuffer(templateMessage, CharsetUtil.UTF_8))
+
+		chan.write(
+				ChannelBuffers.copiedBuffer(templateMessage, CharsetUtil.UTF_8))
 				.addListener(ChannelFutureListener.CLOSE);
 
-		scheduleClearTask();
+		scheduleClearTask(handler);
 	}
 
 	private String getTargetFormatMessage(String message) {
@@ -135,7 +137,7 @@ public class JsonpIO extends GenericIO {
 
 		log.debug("format json message : "
 				+ String.format(TEMPLATE, iString, message));
-		
+
 		return String.format(TEMPLATE, iString, message);
 	}
 
