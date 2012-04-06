@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,13 +39,9 @@ import org.jboss.netty.handler.stream.ChunkedFile;
 import org.jboss.netty.util.CharsetUtil;
 
 import com.yongboy.socketio.server.transport.BlankIO;
-import com.yongboy.socketio.server.transport.FlashSocketTransport;
-import com.yongboy.socketio.server.transport.HtmlfileTransport;
+import com.yongboy.socketio.server.transport.GenericIO;
 import com.yongboy.socketio.server.transport.IOClient;
 import com.yongboy.socketio.server.transport.ITransport;
-import com.yongboy.socketio.server.transport.JsonpTransport;
-import com.yongboy.socketio.server.transport.PollingTransport;
-import com.yongboy.socketio.server.transport.WebSocketTransport;
 
 public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 	private static final Logger log = Logger
@@ -54,31 +49,10 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 	private IOHandlerAbs handler;
 	private ITransport currentTransport = null;
-	private List<ITransport> transportList = null;
 
 	public SocketIOTransportAdapter(IOHandlerAbs handler) {
 		super();
 		this.handler = handler;
-
-		initTransports();
-	}
-
-	private void initTransports() {
-		transportList = new ArrayList<ITransport>();
-		transportList.add(new HtmlfileTransport(this.handler));
-		transportList.add(new PollingTransport(this.handler));
-		transportList.add(new WebSocketTransport(this.handler));
-		transportList.add(new JsonpTransport(this.handler));
-		transportList.add(new FlashSocketTransport(this.handler));
-	}
-
-	private ITransport getITransportByUri(String uri) {
-		for (ITransport port : transportList) {
-			if (port.check(uri))
-				return port;
-		}
-
-		return null;
 	}
 
 	private String getUniqueID() {
@@ -88,19 +62,29 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 	@Override
 	public void channelDisconnected(ChannelHandlerContext ctx,
 			org.jboss.netty.channel.ChannelStateEvent e) throws Exception {
-		log.debug("channelDisconnected here");
-
-		Store store = SocketIOManager.getDefaultStore();
-		IOClient client = store.getByCtx(ctx);
-		if (client == null) {
-			log.debug("client is null");
+		if (this.currentTransport == null) {
 			return;
 		}
 
+		log.debug("this.currentTransport.id " + this.currentTransport.getId());
+		if ("websocket,flashsocket,htmlfile".contains(this.currentTransport
+				.getId())) {
+			log.debug("going to clear client~");
+			Store store = SocketIOManager.getDefaultStore();
+			String sessionId = this.currentTransport.getSessionId();
+			IOClient client = store.get(sessionId);
+			if (client == null) {
+				log.debug("client had been removed by session id " + sessionId);
+				return;
+			}
+
+			if (client instanceof GenericIO) {
+				GenericIO genericIO = (GenericIO) client;
+				genericIO.scheduleRemoveTask(this.handler);
+			}
+		}
+
 		log.debug("client is not null");
-		//
-		// // TODO ?
-		// this.disconnect(client);
 	}
 
 	public void disconnect(IOClient client) {
@@ -144,8 +128,10 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 			return;
 		}
 
-		String uri = req.getUri();
-		currentTransport = getITransportByUri(uri);
+		if (currentTransport == null) {
+			currentTransport = Transports.getTransportByReq(handler, req);
+		}
+
 		if (currentTransport != null) {
 			currentTransport.doHandle(ctx, req, e);
 			return;
@@ -163,8 +149,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		String contentString = String.format(
 				SocketIOManager.getHandshakeResult(), uID);
 
-		QueryStringDecoder queryStringDecoder = new QueryStringDecoder(
-				reqURI);
+		QueryStringDecoder queryStringDecoder = new QueryStringDecoder(reqURI);
 
 		String jsonpValue = getParameter(queryStringDecoder, "jsonp");
 		// io.j[1]("9135478181958205332:60:60:websocket,flashsocket");
@@ -290,6 +275,25 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 			throws Exception {
+		log.debug("exceptionCaught now ...");
+		if (this.currentTransport == null) {
+			return;
+		}
+
+		// 清理资源
+		Store store = SocketIOManager.getDefaultStore();
+		String sessionId = this.currentTransport.getSessionId();
+		IOClient client = store.get(sessionId);
+		if (client == null) {
+			log.debug("client had been removed by session id " + sessionId);
+			return;
+		}
+
+		if (client instanceof GenericIO) {
+			GenericIO genericIO = (GenericIO) client;
+			genericIO.scheduleRemoveTask(this.handler);
+		}
+
 		e.getCause().printStackTrace();
 		e.getChannel().close();
 	}

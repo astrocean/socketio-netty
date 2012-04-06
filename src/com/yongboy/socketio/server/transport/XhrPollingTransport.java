@@ -7,10 +7,10 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import com.yongboy.socketio.server.IOHandlerAbs;
 import com.yongboy.socketio.server.Transports;
 
-public class PollingTransport extends ITransport {
+public class XhrPollingTransport extends ITransport {
 
-	public PollingTransport(IOHandlerAbs handler) {
-		super(handler);
+	public XhrPollingTransport(IOHandlerAbs handler, HttpRequest req) {
+		super(handler, req);
 	}
 
 	public static String getName() {
@@ -41,7 +41,7 @@ public class PollingTransport extends ITransport {
 		GenericIO client = super.initGenericClient(ctx, req);
 
 		if (!(client instanceof XhrIO)) {
-			String sessionId = super.getSessionId(req);
+			String sessionId = super.getSessionId();
 			super.store.remove(sessionId);
 
 			return initGenericClient(ctx, req);
