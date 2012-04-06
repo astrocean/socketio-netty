@@ -8,8 +8,8 @@ import com.yongboy.socketio.server.Transports;
 
 public class HtmlfileTransport extends ITransport {
 
-	public HtmlfileTransport(IOHandlerAbs handler) {
-		super(handler);
+	public HtmlfileTransport(IOHandlerAbs handler, HttpRequest req) {
+		super(handler, req);
 	}
 
 	public static String getName() {

@@ -22,8 +22,8 @@ public class WebSocketTransport extends ITransport {
 			.getLogger(WebSocketTransport.class);
 	private WebSocketServerHandshaker handshaker;
 
-	public WebSocketTransport(IOHandlerAbs handler) {
-		super(handler);
+	public WebSocketTransport(IOHandlerAbs handler, HttpRequest req) {
+		super(handler, req);
 	}
 
 	public static String getName() {
@@ -49,7 +49,7 @@ public class WebSocketTransport extends ITransport {
 			MessageEvent e) {
 		log.debug("websocket handls the request ...");
 		// 需要调用父级的，否则将会发生异常
-		String sessionId = super.getSessionId(req);
+		String sessionId = super.getSessionId();
 		log.debug("session id " + sessionId);
 
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(

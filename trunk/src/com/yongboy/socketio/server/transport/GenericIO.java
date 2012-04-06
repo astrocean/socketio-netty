@@ -63,6 +63,11 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTask(
 				getSessionID(), handler));
 	}
+	
+	public void scheduleRemoveTask(final IOHandler handler) {
+		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTask(
+				getSessionID(), handler, true));
+	}
 
 	protected void prepareHearbeat() {
 		if (this.beat > 0) {

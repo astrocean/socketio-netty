@@ -14,8 +14,8 @@ import com.yongboy.socketio.server.Transports;
  */
 public class FlashSocketTransport extends WebSocketTransport {
 
-	public FlashSocketTransport(IOHandlerAbs handler) {
-		super(handler);
+	public FlashSocketTransport(IOHandlerAbs handler, HttpRequest req) {
+		super(handler, req);
 	}
 
 	public static String getName() {

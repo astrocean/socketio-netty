@@ -34,9 +34,12 @@ public abstract class ITransport {
 	private static final Logger log = Logger.getLogger(ITransport.class);
 	protected IOHandlerAbs handler;
 	protected Store store;
+	protected HttpRequest req;
 
-	public ITransport(IOHandlerAbs handler) {
+	public ITransport(IOHandlerAbs handler, HttpRequest req) {
 		this.handler = handler;
+		this.req = req;
+
 		this.store = SocketIOManager.getDefaultStore();
 	}
 
@@ -99,10 +102,6 @@ public abstract class ITransport {
 			MessageEvent e) {
 		String sessionId = getSessionId(req);
 
-		// check session id exist
-		// 在safari中，会导致一直循环
-		// String userAgent = req.getHeader("User-Agent");
-
 		if (!this.store.checkExist(sessionId)) {
 			handleInvalidRequest(req, e);
 			return;
@@ -144,21 +143,6 @@ public abstract class ITransport {
 
 		// 需要切换到每一个具体的transport中
 		if (req.getMethod() == HttpMethod.GET) { // 非第一次请求时
-			// 判断session id一致，但对应ID已经变化
-			// Transports transport = Transports.getByValue(client.getId());
-			// if (transport == null)
-			// return;
-			//
-			// if (!transport.checkPattern(req.getUri())) {
-			// log.debug(req.getUri() + " does not contains " + client.getId());
-			// store.remove(client.getSessionID());
-			// client = null;
-			//
-			// doHandle(ctx, req, e);
-			//
-			// return;
-			// }
-
 			if (!isNew) {
 				client.reconnect(ctx, req);
 				client.heartbeat(this.handler);
@@ -241,19 +225,6 @@ public abstract class ITransport {
 			store.add(sessionId, client);
 			this.handler.OnConnect(client);
 		}
-
-		// // 判断session id一致，但对应ID已经变化
-		// Transports transport = Transports.getByValue(client.getId());
-		// if (transport == null)
-		// return client;
-		//
-		// if (!transport.checkPattern(req.getUri())) {
-		// log.debug(req.getUri() + " does not contains " + client.getId());
-		// store.remove(sessionId);
-		// client = null;
-		//
-		// return initGenericClient(ctx, req);
-		// }
 
 		return client;
 	}
@@ -339,7 +310,19 @@ public abstract class ITransport {
 	 * @param req
 	 * @return
 	 */
+	@Deprecated
 	protected String getSessionId(HttpRequest req) {
+		String reqURI = req.getUri();
+		String[] parts = reqURI.substring(1).split("/");
+		String sessionId = parts.length > 3 ? parts[3] : "";
+		if (sessionId.indexOf("?") != -1) {
+			sessionId = sessionId.replaceAll("\\?.*", "");
+		}
+		
+		return sessionId;
+	}
+	
+	public String getSessionId() {
 		String reqURI = req.getUri();
 		String[] parts = reqURI.substring(1).split("/");
 		String sessionId = parts.length > 3 ? parts[3] : "";

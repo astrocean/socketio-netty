@@ -6,10 +6,10 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import com.yongboy.socketio.server.IOHandlerAbs;
 import com.yongboy.socketio.server.Transports;
 
-public class JsonpTransport extends ITransport {
+public class JsonpPollingTransport extends ITransport {
 
-	public JsonpTransport(IOHandlerAbs handler) {
-		super(handler);
+	public JsonpPollingTransport(IOHandlerAbs handler, HttpRequest req) {
+		super(handler, req);
 	}
 
 	public static String getName() {
