@@ -40,7 +40,7 @@ public class WebSocketTransport extends ITransport {
 			HttpRequest req, String sessionId) {
 		WebSocketIO client = new WebSocketIO(ctx, req, sessionId);
 		client.connect(null);
-		client.heartbeat();
+		client.heartbeat(this.handler);
 		return client;
 	}
 

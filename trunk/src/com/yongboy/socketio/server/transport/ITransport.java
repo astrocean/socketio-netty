@@ -3,8 +3,6 @@ package com.yongboy.socketio.server.transport;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -103,7 +101,7 @@ public abstract class ITransport {
 
 		// check session id exist
 		// 在safari中，会导致一直循环
-//		String userAgent = req.getHeader("User-Agent");
+		// String userAgent = req.getHeader("User-Agent");
 
 		if (!this.store.checkExist(sessionId)) {
 			handleInvalidRequest(req, e);
@@ -129,7 +127,6 @@ public abstract class ITransport {
 		boolean isNew = false;
 		if (client == null) {
 			log.debug("the client is null with id : " + sessionId);
-			ctx.setAttachment(this.handler);
 			client = doPrepareI0Client(ctx, req, sessionId);
 
 			store.add(sessionId, client);
@@ -164,7 +161,7 @@ public abstract class ITransport {
 
 			if (!isNew) {
 				client.reconnect(ctx, req);
-				client.heartbeat();
+				client.heartbeat(this.handler);
 			}
 
 			return;
@@ -214,20 +211,6 @@ public abstract class ITransport {
 		// setContentLength(resp, resp.getContent().readableBytes());
 
 		e.getChannel().write(resp).addListener(ChannelFutureListener.CLOSE);
-	}
-
-	private static String getParameter(QueryStringDecoder queryStringDecoder,
-			String parameterName) {
-		if (queryStringDecoder == null || parameterName == null)
-			return null;
-
-		List<String> values = queryStringDecoder.getParameters().get(
-				parameterName);
-
-		if (values == null || values.isEmpty())
-			return null;
-
-		return values.get(0);
 	}
 
 	/**
@@ -328,7 +311,7 @@ public abstract class ITransport {
 			respContent = "1";
 		} else if (content.equals("2::")) {
 			log.debug("got heartbeat packets");
-			client.heartbeat();
+			client.heartbeat(this.handler);
 
 			respContent = "1";
 		} else if (content.startsWith("0::") || content.equals("0::")) {

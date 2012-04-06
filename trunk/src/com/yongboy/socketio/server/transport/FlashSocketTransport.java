@@ -32,7 +32,7 @@ public class FlashSocketTransport extends WebSocketTransport {
 			HttpRequest req, String sessionId) {
 		FlashSocketIO client = new FlashSocketIO(ctx, req, sessionId);
 		client.connect(null);
-		client.heartbeat();
+		client.heartbeat(this.handler);
 		return client;
 	}
 }

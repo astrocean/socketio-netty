@@ -8,7 +8,7 @@ import com.yongboy.socketio.server.transport.IOClient;
  * @time 2012-3-23
  * @version 1.0
  */
-interface IOHandler {
+public interface IOHandler {
 	void OnConnect(IOClient client);
 
 	void OnMessage(IOClient client, String oriMessage);

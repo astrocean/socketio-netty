@@ -10,6 +10,7 @@ import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 
+import com.yongboy.socketio.server.IOHandler;
 import com.yongboy.socketio.server.SocketIOManager;
 import com.yongboy.socketio.server.Transports;
 
@@ -26,14 +27,14 @@ public class HtmlfileIO extends GenericIO {
 	 * @see com.yongboy.socketio.client.GenericIOClient#heartbeat()
 	 */
 	@Override
-	public void heartbeat() {
+	public void heartbeat(final IOHandler handler) {
 		prepareHearbeat();
 
 		// 25秒为默认触发值，但触发之后，客户端会发起新的一个心跳检测连接
 		SocketIOManager.schedule(new Runnable() {
 			@Override
 			public void run() {
-				scheduleClearTask();
+				scheduleClearTask(handler);
 				
 				__write(String.format(TEMPLATE, "2::"));
 			}

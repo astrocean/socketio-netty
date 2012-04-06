@@ -2,6 +2,8 @@ package com.yongboy.socketio.server.transport;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 
+import com.yongboy.socketio.server.IOHandler;
+
 /**
  * @author yongboy
  * @time 2012-4-3
@@ -49,7 +51,7 @@ public class BlankIO implements IOClient {
 	 * @see com.yongboy.socketio.server.transport.IOClient#heartbeat()
 	 */
 	@Override
-	public void heartbeat() {
+	public void heartbeat(final IOHandler ioHandler) {
 		// TODO Auto-generated method stub
 
 	}

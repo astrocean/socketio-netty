@@ -1,17 +1,12 @@
 package com.yongboy.socketio.server.transport;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledFuture;
-
 import org.apache.log4j.Logger;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
-import com.yongboy.socketio.server.IOHandlerAbs;
+import com.yongboy.socketio.server.IOHandler;
 import com.yongboy.socketio.server.SocketIOManager;
-import com.yongboy.socketio.server.Store;
 
 /**
  * 
@@ -27,9 +22,6 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	protected String uID;
 	protected boolean open = false;
 	protected HttpRequest req;
-	protected final BlockingQueue<String> queue;
-
-	protected ScheduledFuture<?> scheduledFuture;
 
 	public GenericIO(ChannelHandlerContext ctx, HttpRequest req, String uID) {
 		super();
@@ -37,8 +29,6 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 		this.req = req;
 		this.uID = uID;
 		this.open = true;
-
-		queue = new LinkedBlockingQueue<String>();
 	}
 
 	public void reconnect(ChannelHandlerContext ctx, HttpRequest req) {
@@ -52,19 +42,26 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 		sendEncoded(message);
 	}
 
-	public void heartbeat() {
+	/**
+	 * 仅作为示范，会被子类重写
+	 * 
+	 * @author nieyong
+	 * @time 2012-4-6
+	 * 
+	 */
+	public void heartbeat(final IOHandler handler) {
 		prepareHearbeat();
 
 		// add new task
 		// 定时设置client为不可用
-		scheduleClearTask();
+		scheduleClearTask(handler);
 
 		sendEncoded("2::");
 	}
 
-	protected void scheduleClearTask() {
+	protected void scheduleClearTask(final IOHandler handler) {
 		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTask(
-				getSessionID()));
+				getSessionID(), handler));
 	}
 
 	protected void prepareHearbeat() {
@@ -83,86 +80,6 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 			}
 		}
 	}
-
-	/**
-	 * 
-	 * @author yongboy
-	 * @time 2012-4-4
-	 * @version 1.0
-	 */
-	protected static class ClearTask implements Runnable {
-		private String sessionId;
-		private boolean clearSession = false;
-
-		public ClearTask(String sessionId) {
-			this.sessionId = sessionId;
-		}
-
-		public ClearTask(String sessionId, boolean clearSession) {
-			this.sessionId = sessionId;
-			this.clearSession = clearSession;
-		}
-
-		@Override
-		public void run() {
-			log.debug("entry ClearTask run method clearSession is "
-					+ clearSession + " and sessionId is " + sessionId);
-			Store store = SocketIOManager.getDefaultStore();
-			IOClient client = store.get(sessionId);
-			if (client == null) {
-				log.debug("the client is null");
-				return;
-			}
-
-			if (!clearSession && client.isOpen()) {
-				client.setOpen(false);
-				// maybe you need to save it into database
-				// some update method here
-			}
-
-			if (!clearSession) {
-				log.debug("add new task ~");
-				SocketIOManager
-						.scheduleClearTask(new ClearTask(sessionId, true));
-				return;
-			}
-
-			// start new task to clear the client object
-			// 若被其它线程激活，则意味着当前client为有效状态
-			if (client.isOpen()) {
-				log.debug("the client's open is " + client.isOpen());
-				return;
-			}
-
-			log.debug("now remove the clients from store with sessionid "
-					+ sessionId);
-
-			ChannelHandlerContext ctx = client.getCTX();
-			if (ctx != null) {
-				IOHandlerAbs handler = (IOHandlerAbs) ctx.getAttachment();
-				if (handler != null) {
-					handler.OnDisconnect(client);
-				}
-			}
-
-			client.disconnect();
-			store.remove(sessionId);
-		}
-	}
-
-	// public boolean heartbeat(int beat) {
-	// if (!this.open)
-	// return false;
-	//
-	// int lastBeat = beat - 1;
-	// if (this.beat == 0 || this.beat > beat) {
-	// this.beat = beat;
-	// } else if (this.beat < lastBeat) {
-	// // we're 2 beats behind..
-	// return false;
-	// }
-	// return true;
-	// }
 
 	public ChannelHandlerContext getCTX() {
 		return this.ctx;
@@ -215,21 +132,6 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	public void disconnect(String info) {
 		sendEncoded("0::");
 	}
-
-	/**
-	 * 定义POST方式定时心跳检测，输出值
-	 * 
-	 * @author yongboy
-	 * @time 2012-3-23
-	 * 
-	 */
-	// public void postHeartbeat() {
-	// if (this.beat > 0) {
-	// this.beat++;
-	// }
-	//
-	// sendEncoded("1");
-	// }
 
 	@Override
 	public boolean isOpen() {

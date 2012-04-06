@@ -2,6 +2,8 @@ package com.yongboy.socketio.server.transport;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 
+import com.yongboy.socketio.server.IOHandler;
+
 /**
  * 
  * @author yongboy
@@ -36,7 +38,6 @@ public interface IOClient {
 	 * @param beat
 	 * @return
 	 */
-	// boolean heartbeat(int beat);
 
 	/**
 	 * 
@@ -44,7 +45,7 @@ public interface IOClient {
 	 * @time 2012-3-27
 	 * 
 	 */
-	void heartbeat();
+	void heartbeat(final IOHandler ioHandler);
 
 	/**
 	 * 
@@ -91,12 +92,12 @@ public interface IOClient {
 	 * @return
 	 */
 	boolean isOpen();
-	
+
 	/**
 	 * 
 	 * @author yongboy
 	 * @time 2012-4-3
-	 *
+	 * 
 	 * @param open
 	 */
 	void setOpen(boolean open);

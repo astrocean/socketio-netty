@@ -51,7 +51,7 @@ public class PollingTransport extends ITransport {
 		if (req.getMethod() == HttpMethod.GET) { // 非第一次请求时
 			client.reconnect(ctx, req);
 
-			client.heartbeat();
+			client.heartbeat(this.handler);
 		}
 
 		return client;
