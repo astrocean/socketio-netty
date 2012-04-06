@@ -12,10 +12,6 @@ public class JsonpPollingTransport extends ITransport {
 		super(handler, req);
 	}
 
-	public static String getName() {
-		return Transports.JSONPP0LLING.getValue();
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

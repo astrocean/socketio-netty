@@ -13,10 +13,6 @@ public class XhrPollingTransport extends ITransport {
 		super(handler, req);
 	}
 
-	public static String getName() {
-		return Transports.XHRPOLLING.getValue();
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -18,10 +18,6 @@ public class FlashSocketTransport extends WebSocketTransport {
 		super(handler, req);
 	}
 
-	public static String getName() {
-		return Transports.FLASHSOCKET.getValue();
-	}
-
 	@Override
 	public String getId() {
 		return Transports.FLASHSOCKET.getValue();
