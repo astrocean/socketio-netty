@@ -12,10 +12,6 @@ public class HtmlfileTransport extends ITransport {
 		super(handler, req);
 	}
 
-	public static String getName() {
-		return Transports.HTMLFILE.getValue();
-	}
-
 	@Override
 	public String getId() {
 		return Transports.HTMLFILE.getValue();

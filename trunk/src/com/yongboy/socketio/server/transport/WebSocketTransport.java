@@ -26,10 +26,6 @@ public class WebSocketTransport extends ITransport {
 		super(handler, req);
 	}
 
-	public static String getName() {
-		return Transports.WEBSOCKET.getValue();
-	}
-
 	@Override
 	public String getId() {
 		return Transports.WEBSOCKET.getValue();
