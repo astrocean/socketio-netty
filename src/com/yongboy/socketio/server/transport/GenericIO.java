@@ -63,7 +63,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTask(
 				getSessionID(), handler));
 	}
-	
+
 	public void scheduleRemoveTask(final IOHandler handler) {
 		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTask(
 				getSessionID(), handler, true));
@@ -146,5 +146,35 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	@Override
 	public void setOpen(boolean open) {
 		this.open = open;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return this.getSessionID().hashCode();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+
+		IOClient objClient = (IOClient) obj;
+
+		return this.getId().equals(objClient.getId())
+				&& this.getSessionID().equals(objClient.getSessionID());
 	}
 }
