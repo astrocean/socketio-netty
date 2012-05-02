@@ -3,6 +3,9 @@ package com.yongboy.socketio.server.transport;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -275,31 +278,67 @@ public abstract class ITransport {
 			content = content.trim();
 		}
 
+		List<String> contentList = null;
+		if (content.startsWith(SPLIT_CHAR)) {
+			contentList = getSplitResults(content);
+		} else {
+			contentList = new ArrayList<String>(1);
+			contentList.add(content);
+		}
+
 		String respContent = null;
-		if (content.startsWith("5:")) {
-			handler.OnMessage(client, content);
 
-			respContent = "1";
-		} else if (content.equals("2::")) {
-			log.debug("got heartbeat packets");
-			client.heartbeat(this.handler);
+		for (String subContent : contentList) {
+			if (subContent.startsWith("5:")) {
+				handler.OnMessage(client, subContent);
 
-			respContent = "1";
-		} else if (content.startsWith("0::") || content.equals("0::")) {
-			handler.OnDisconnect(client);
+				respContent = "1";
+			} else if (subContent.equals("2::")) {
+				log.debug("got heartbeat packets");
+				client.heartbeat(this.handler);
 
-			respContent = content;
-		}
+				respContent = "1";
+			} else if (subContent.startsWith("0::") || subContent.equals("0::")) {
+				handler.OnDisconnect(client);
 
-		if (respContent == null) {
-			respContent = "1";
-		}
+				respContent = subContent;
+			}
 
-		if (respContent.equals("11")) {
-			respContent = "1";
+			if (respContent == null) {
+				respContent = "1";
+			}
+
+			if (respContent.equals("11")) {
+				respContent = "1";
+			}
 		}
 
 		return respContent;
+	}
+
+	private static String SPLIT_CHAR = String.valueOf('\ufffd');
+
+	/**
+	 * 处理多个数据包`\ufffd` [message lenth] `\ufffd`的情况
+	 * 
+	 * @author yongboy
+	 * @time 2012-5-2
+	 * 
+	 * @param ori
+	 * @return
+	 */
+	private static List<String> getSplitResults(String ori) {
+		List<String> list = new ArrayList<String>();
+		String[] results = ori.split(SPLIT_CHAR + "\\d{1,}" + SPLIT_CHAR);
+
+		for (String d : results) {
+			if (d.equals(""))
+				continue;
+
+			list.add(d);
+		}
+
+		return list;
 	}
 
 	/**
@@ -318,10 +357,10 @@ public abstract class ITransport {
 		if (sessionId.indexOf("?") != -1) {
 			sessionId = sessionId.replaceAll("\\?.*", "");
 		}
-		
+
 		return sessionId;
 	}
-	
+
 	public String getSessionId() {
 		String reqURI = req.getUri();
 		String[] parts = reqURI.substring(1).split("/");
