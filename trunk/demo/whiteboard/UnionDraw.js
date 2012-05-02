@@ -79,6 +79,9 @@ var processDrawingCommandsIntervalID;
 //==============================================================================
 var hasTouch = false;
 
+var isShape = false;
+var shapeObj = {};
+
 //==============================================================================
 // INITIALIZATION
 //==============================================================================
@@ -130,6 +133,8 @@ function registerInputListeners () {
   
   document.getElementById("thickness").onchange = thicknessSelectListener;
   document.getElementById("color").onchange = colorSelectListener;
+
+  document.getElementById("shape").onchange = shapeSelectListener;
 }
 
 // Initialize Orbiter, which handles multiuser communications
@@ -149,6 +154,27 @@ socket.on('disconnect', function() {
   setStatus("Disconnected from Server.");
   // Stop drawing content sent by other users
   clearInterval(processDrawingCommandsIntervalID);
+});
+
+socket.on('clearCanvas', function(obj){
+	if(!obj.points)
+		context.clearRect(0, 0, canvas.width, canvas.height);
+	else{
+//		alert("clear rect");
+		console.log(obj.points[0] + "," + obj.points[1] + "," + obj.width + "," + obj.height);
+		context.clearRect(obj.points[0], obj.points[1], obj.width, obj.height);
+	}
+});
+
+socket.on('drawRec', function(obj){
+	context.beginPath();
+	var points = obj.points;
+    context.rect(points[0], points[1], points[2], points[3]);
+    context.closePath();
+    
+    context.lineWidth = obj.line;
+    context.strokeStyle = obj.style;
+    context.stroke();
 });
 
 socket.on('roomCount', function(obj){
@@ -503,7 +529,11 @@ function pointerUpListener (e) {
     return;
   }
   // "Lift" the drawing pen
-  penUp();
+  var event = e || window.event; // IE uses window.event, not e
+  var mouseX = event.clientX - canvas.offsetLeft;
+  var mouseY = event.clientY - canvas.offsetTop;
+  
+  penUp(mouseX, mouseY);
 }
 
 //==============================================================================
@@ -524,14 +554,30 @@ function thicknessSelectListener (e) {
 
 // Triggered when an option in the "line color" menu is selected
 function colorSelectListener (e) {
+	// Determine which option was selected
+	var newColor = this.options[this.selectedIndex].value;
+	// Locally, set the line color to the selected value
+	localLineColor = newColor;
+	// Share selected color with other users
+	socket.emit('attrUpdate', {room:roomID, client:currentClientId, attr: Attributes.COLOR, val:newColor});
+	// Scroll the iPhone back to the top-left. 
+	iPhoneToTop();
+}
+
+// Triggered when an option in the "line color" menu is selected
+function shapeSelectListener (e) {
   // Determine which option was selected
   var newColor = this.options[this.selectedIndex].value;
+  if(newColor == "")
+	  return;
+  isShape = true;
+  shapeObj.type = newColor;
   // Locally, set the line color to the selected value
-  localLineColor = newColor;
+ // localLineColor = newColor;
   // Share selected color with other users
-  socket.emit('attrUpdate', {room:roomID, client:currentClientId, attr: Attributes.COLOR, val:newColor});
+  //socket.emit('attrUpdate', {room:roomID, client:currentClientId, attr: Attributes.COLOR, val:newColor});
   // Scroll the iPhone back to the top-left. 
-  iPhoneToTop();
+  //iPhoneToTop();
 }
 
 //==============================================================================
@@ -539,7 +585,19 @@ function colorSelectListener (e) {
 //==============================================================================
 // Places the pen in the specified location without drawing a line. If the pen
 // subsequently moves, a line will be drawn.
+
 function penDown (x, y) {
+	if(isErase){
+		isPenDown = true;
+		return;
+	}
+	
+  if(isShape){
+	  shapeObj.x = x;
+	  shapeObj.y = y;
+	  return;
+  }
+  
   isPenDown = true;
   localPen.x = x;
   localPen.y = y;
@@ -552,7 +610,30 @@ function penDown (x, y) {
 }
 
 // Draws a line if the pen is down.
-function penMove (x, y) { 
+function penMove (x, y) {
+	if(isErase && isPenDown){
+		socket.emit('clearCanvas', {room:roomID, client:currentClientId, points:[x,y], width:5, height:5});
+		context.clearRect(x, y, 5, 5);
+		return;
+	}
+	
+	if(isShape){
+//            var wid = this.canvas.width;
+//            var hei = this.canvas.height;
+//	        this.context.clearRect(0, 0, wid, hei);
+//	        this.context.drawImage(canvas, 0, 0);
+//		
+//		this.context.beginPath();
+//        this.context.rect(shapeObj.x, shapeObj.y, x-shapeObj.x, y-shapeObj.y);
+//        this.context.closePath();
+//        
+//        context.lineWidth = localLineThickness;
+//        context.strokeStyle = localLineColor;
+//        this.context.stroke();
+		
+		return;
+	}
+	
   if (isPenDown) {
     // Buffer the new position for broadcast to other users. Buffer a maximum
     // of 100 points per second.
@@ -572,7 +653,37 @@ function penMove (x, y) {
 
 // "Lifts" the drawing pen, so that lines are no longer draw when the mouse or
 // touch-input device moves.
-function penUp () {
+function penUp (x, y) {
+	if(isErase && isPenDown){
+		isPenDown = false;
+		return;
+	}
+	
+	if(isShape){
+		if(!shapeObj.x){
+			return;
+		}
+		
+		socket.emit('drawRec', {room:roomID, client:currentClientId, line:localLineThickness, style:localLineColor, points:[shapeObj.x, shapeObj.y, x-shapeObj.x, y-shapeObj.y]});
+		
+		this.context.beginPath();
+        this.context.rect(shapeObj.x, shapeObj.y, x-shapeObj.x, y-shapeObj.y);
+        this.context.closePath();
+        
+        context.lineWidth = localLineThickness;
+        context.strokeStyle = localLineColor;
+        this.context.stroke();
+        
+        shapeObj.x = 0;
+        shapeObj.y = 0;
+        
+        shapeObj = {};
+        isShape = false;
+        document.getElementById("shape").selectedIndex = 0;
+		
+		return;
+	}
+	
   isPenDown = false;
 }
 
@@ -620,5 +731,11 @@ function getValidThickness (value) {
 }
 
 function clearCanvas(){
+	socket.emit('clearCanvas', {room:roomID, client:currentClientId});
 	context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+var isErase = false;
+function erase(){
+	isErase = !isErase;
 }
