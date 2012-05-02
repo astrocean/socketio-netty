@@ -1,7 +1,7 @@
 package com.yongboy.socketio.test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,7 +23,7 @@ import com.yongboy.socketio.server.transport.IOClient;
 public class WhiteboardHandler extends IOHandlerAbs {
 	private Logger log = Logger.getLogger(this.getClass());
 	// 房间的一对多<房间号,List<客户端>>
-	private ConcurrentMap<String, List<IOClient>> roomClients = new ConcurrentHashMap<String, List<IOClient>>();
+	private ConcurrentMap<String, Set<IOClient>> roomClients = new ConcurrentHashMap<String, Set<IOClient>>();
 
 	@Override
 	public void OnConnect(IOClient client) {
@@ -43,8 +43,7 @@ public class WhiteboardHandler extends IOHandlerAbs {
 
 		String roomId = roomObj.toString();
 
-		List<IOClient> clients = roomClients.get(roomId);
-
+		Set<IOClient> clients = roomClients.get(roomId);
 		clients.remove(client);
 
 		int clientNums = clients.size();
@@ -73,7 +72,7 @@ public class WhiteboardHandler extends IOHandlerAbs {
 
 		if (eventName.equals("roomNotice")) {
 			if (!roomClients.containsKey(roomId)) {
-				roomClients.put(roomId, new ArrayList<IOClient>());
+				roomClients.put(roomId, new HashSet<IOClient>());
 				GenericIO genericIO = (GenericIO) client;
 				genericIO.attr.put("room", roomId);
 			}
@@ -105,7 +104,7 @@ public class WhiteboardHandler extends IOHandlerAbs {
 	 */
 	private void broadcastRoom(String roomId, IOClient client,
 			String eventName, String jsonString) {
-		List<IOClient> clients = roomClients.get(roomId);
+		Set<IOClient> clients = roomClients.get(roomId);
 		if (clients == null || clients.isEmpty())
 			return;
 
