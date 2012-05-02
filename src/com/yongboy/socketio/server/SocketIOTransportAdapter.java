@@ -285,7 +285,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		String sessionId = this.currentTransport.getSessionId();
 		IOClient client = store.get(sessionId);
 		if (client == null) {
-			log.debug("client had been removed by session id " + sessionId);
+			log.info("client had been removed by session id " + sessionId);
 			return;
 		}
 
@@ -294,6 +294,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 			genericIO.scheduleRemoveTask(this.handler);
 		}
 
+		log.info("ERROR !");
 		e.getCause().printStackTrace();
 		e.getChannel().close();
 	}
