@@ -84,13 +84,13 @@ abstract class EventClientIO implements IOClient {
 				return;
 			}
 
-			log.debug("now remove the clients from store with sessionid "
+			log.info("now remove the clients from store with sessionid "
 					+ sessionId);
 
 			if (handler != null) {
 				handler.OnDisconnect(client);
 			} else {
-				log.debug("ioHandler is null");
+				log.info("ioHandler is null");
 			}
 
 			client.disconnect();
