@@ -32,19 +32,23 @@ public class WhiteboardHandler extends IOHandlerAbs {
 
 	@Override
 	public void OnDisconnect(IOClient client) {
-		log.debug("A user disconnected :: " + client.getSessionID()
+		log.info("A user disconnected :: " + client.getSessionID()
 				+ " :: hope it was fun");
 
 		GenericIO genericIO = (GenericIO) client;
 		Object roomObj = genericIO.attr.get("room");
 
-		if (roomObj == null)
+		if (roomObj == null) {
+			log.info("the roomObj is null!");
 			return;
+		}
 
 		String roomId = roomObj.toString();
 
 		Set<IOClient> clients = roomClients.get(roomId);
+		log.info("clients size is " + clients.size());
 		clients.remove(client);
+		log.info("removed clients's size is " + clients.size());
 
 		int clientNums = clients.size();
 
@@ -73,10 +77,10 @@ public class WhiteboardHandler extends IOHandlerAbs {
 		if (eventName.equals("roomNotice")) {
 			if (!roomClients.containsKey(roomId)) {
 				roomClients.put(roomId, new HashSet<IOClient>());
-				GenericIO genericIO = (GenericIO) client;
-				genericIO.attr.put("room", roomId);
 			}
 
+			GenericIO genericIO = (GenericIO) client;
+			genericIO.attr.put("room", roomId);
 			roomClients.get(roomId).add(client);
 
 			int clientNums = roomClients.get(roomId).size();
