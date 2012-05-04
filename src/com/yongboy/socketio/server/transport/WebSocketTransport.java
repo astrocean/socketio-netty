@@ -171,7 +171,7 @@ public class WebSocketTransport extends ITransport {
 	 * @return
 	 */
 	private String getTargetLocation(HttpRequest req, String sessionId) {
-		return "ws://" + req.getHeader(HttpHeaders.Names.HOST) + "/" + getId()
+		return "ws://" + req.getHeader(HttpHeaders.Names.HOST) + "/socket.io/1/" + getId()
 				+ "/" + sessionId;
 	}
 
