@@ -62,6 +62,22 @@ public class WebSocketIO extends GenericIO {
 		}
 	}
 
+	public void sendDirect(String message) {
+		if (!this.open) {
+			log.debug("this.open is false");
+			return;
+		}
+
+		log.debug("websocket writing " + message + " for client "
+				+ getSessionID());
+		Channel chan = ctx.getChannel();
+		if (chan.isOpen()) {
+			chan.write(new TextWebSocketFrame(message));
+		} else {
+			log.debug("chan.isOpen() is false");
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
