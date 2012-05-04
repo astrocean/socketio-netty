@@ -3,7 +3,6 @@ package com.yongboy.socketio.server;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
-import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -34,6 +33,8 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
+import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
 import org.jboss.netty.util.CharsetUtil;
@@ -42,6 +43,7 @@ import com.yongboy.socketio.server.transport.BlankIO;
 import com.yongboy.socketio.server.transport.GenericIO;
 import com.yongboy.socketio.server.transport.IOClient;
 import com.yongboy.socketio.server.transport.ITransport;
+import com.yongboy.socketio.server.transport.WebSocketTransport;
 
 public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 	private static final Logger log = Logger
@@ -49,6 +51,9 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 	private IOHandlerAbs handler;
 	private ITransport currentTransport = null;
+
+	// JUST FOR TEST
+	private WebSocketServerHandshaker handshaker;
 
 	public SocketIOTransportAdapter(IOHandlerAbs handler) {
 		super();
@@ -132,13 +137,48 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 			currentTransport = Transports.getTransportByReq(handler, req);
 		}
 
-		if (currentTransport != null) {
-			currentTransport.doHandle(ctx, req, e);
+		if (currentTransport == null) {
+			// sendHttpResponse(ctx, req,
+			// SocketIOManager.getInitResponse(req, FORBIDDEN));
 			return;
 		}
 
-		sendHttpResponse(ctx, req,
-				SocketIOManager.getInitResponse(req, FORBIDDEN));
+		if (currentTransport.getId() != Transports.WEBSOCKET.getValue()) {
+			currentTransport.doHandle(ctx, req, e);
+			return;
+		}
+		
+		// Handshake
+		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
+				this.getTargetLocation(req, getSessionId(req)), null, false);
+		this.handshaker = wsFactory.newHandshaker(req);
+		if (this.handshaker == null) {
+			wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
+		} else {
+			this.handshaker.handshake(ctx.getChannel(), req).addListener(
+					WebSocketServerHandshaker.HANDSHAKE_LISTENER);
+		}
+		
+		WebSocketTransport webSocketTransport = (WebSocketTransport)currentTransport;
+		
+		webSocketTransport.doPrepareClient(ctx, req, e);
+		webSocketTransport.setHandshaker(this.handshaker);
+	}
+
+	public String getSessionId(HttpRequest req) {
+		String reqURI = req.getUri();
+		String[] parts = reqURI.substring(1).split("/");
+		String sessionId = parts.length > 3 ? parts[3] : "";
+		if (sessionId.indexOf("?") != -1) {
+			sessionId = sessionId.replaceAll("\\?.*", "");
+		}
+
+		return sessionId;
+	}
+
+	private String getTargetLocation(HttpRequest req, String sessionId) {
+		return "ws://" + req.getHeader(HttpHeaders.Names.HOST)
+				+ "/socket.io/1/websocket/" + sessionId;
 	}
 
 	private void handleHandshake(HttpRequest req, MessageEvent e, String reqURI) {
