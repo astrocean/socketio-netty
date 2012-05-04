@@ -57,11 +57,13 @@ public class XhrIO extends GenericIO {
 
 	@Override
 	public void sendEncoded(String message) {
+		log.debug("the message is " + message + " been into queue!");
 		this.queue.offer(message);
 	}
 
 	private void sendDirectMessage(String message) {
 		if (this.open) {
+			log.debug("send message is " + message);
 			try {
 				_write(message);
 			} catch (Exception e) {
@@ -70,6 +72,7 @@ public class XhrIO extends GenericIO {
 			}
 			open = false;
 		} else {
+			log.debug("this.open is false, push the message into queue");
 			this.queue.offer(message);
 		}
 	}
