@@ -58,32 +58,20 @@ public class WebSocketTransport extends ITransport {
 
 		this.handshaker.handshake(ctx.getChannel(), req);
 
-		GenericIO client = null;
-		try {
-			client = (GenericIO) SocketIOManager.getDefaultStore().get(
-					sessionId);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
-		if (client == null) {
-			log.debug("the client is null now ...");
-			client = doPrepareI0Client(ctx, req, sessionId);
-
-			SocketIOManager.getDefaultStore().add(sessionId, client);
-			this.handler.OnConnect(client);
-
-			return;
-		}
+		doPrepareClient(ctx, req, sessionId);
 	}
 
-	public void doPrepareClient(ChannelHandlerContext ctx, HttpRequest req,
-			MessageEvent e) {
-		log.debug("websocket handls the request ...");
-		// 需要调用父级的，否则将会发生异常
-		String sessionId = super.getSessionId();
-		log.debug("session id " + sessionId);
-
+	/**
+	 * 
+	 * @author yongboy
+	 * @time 2012-5-4
+	 *
+	 * @param ctx
+	 * @param req
+	 * @param sessionId
+	 */
+	private void doPrepareClient(ChannelHandlerContext ctx, HttpRequest req,
+			String sessionId) {
 		GenericIO client = null;
 		try {
 			client = (GenericIO) SocketIOManager.getDefaultStore().get(
@@ -92,15 +80,15 @@ public class WebSocketTransport extends ITransport {
 			ex.printStackTrace();
 		}
 
-		if (client == null) {
-			log.debug("the client is null now ...");
-			client = doPrepareI0Client(ctx, req, sessionId);
-
-			SocketIOManager.getDefaultStore().add(sessionId, client);
-			this.handler.OnConnect(client);
-
+		if (client != null) {
 			return;
 		}
+
+		log.debug("the client is null now ...");
+		client = doPrepareI0Client(ctx, req, sessionId);
+
+		SocketIOManager.getDefaultStore().add(sessionId, client);
+		this.handler.OnConnect(client);
 	}
 
 	/*
@@ -171,17 +159,7 @@ public class WebSocketTransport extends ITransport {
 	 * @return
 	 */
 	private String getTargetLocation(HttpRequest req, String sessionId) {
-		return "ws://" + req.getHeader(HttpHeaders.Names.HOST) + "/socket.io/1/" + getId()
-				+ "/" + sessionId;
-	}
-
-	/**
-	 * @author nieyong
-	 * @time 2012-5-4
-	 * 
-	 * @param handshaker2
-	 */
-	public void setHandshaker(WebSocketServerHandshaker handshaker) {
-		this.handshaker = handshaker;
+		return "ws://" + req.getHeader(HttpHeaders.Names.HOST)
+				+ "/socket.io/1/" + getId() + "/" + sessionId;
 	}
 }
