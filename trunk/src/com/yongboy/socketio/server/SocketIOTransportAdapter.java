@@ -143,26 +143,26 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 			return;
 		}
 
-		if (currentTransport.getId() != Transports.WEBSOCKET.getValue()) {
+//		if (currentTransport.getId() != Transports.WEBSOCKET.getValue()) {
 			currentTransport.doHandle(ctx, req, e);
 			return;
-		}
+//		}
 		
 		// Handshake
-		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-				this.getTargetLocation(req, getSessionId(req)), null, false);
-		this.handshaker = wsFactory.newHandshaker(req);
-		if (this.handshaker == null) {
-			wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
-		} else {
-			this.handshaker.handshake(ctx.getChannel(), req).addListener(
-					WebSocketServerHandshaker.HANDSHAKE_LISTENER);
-		}
-		
-		WebSocketTransport webSocketTransport = (WebSocketTransport)currentTransport;
-		
-		webSocketTransport.doPrepareClient(ctx, req, e);
-		webSocketTransport.setHandshaker(this.handshaker);
+//		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
+//				this.getTargetLocation(req, getSessionId(req)), null, false);
+//		this.handshaker = wsFactory.newHandshaker(req);
+//		if (this.handshaker == null) {
+//			wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
+//		} else {
+//			this.handshaker.handshake(ctx.getChannel(), req).addListener(
+//					WebSocketServerHandshaker.HANDSHAKE_LISTENER);
+//		}
+//		
+//		WebSocketTransport webSocketTransport = (WebSocketTransport)currentTransport;
+//		
+//		webSocketTransport.doPrepareClient(ctx, req, e);
+//		webSocketTransport.setHandshaker(this.handshaker);
 	}
 
 	public String getSessionId(HttpRequest req) {
