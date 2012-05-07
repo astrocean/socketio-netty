@@ -28,6 +28,11 @@ public class WhiteboardHandler extends IOHandlerAbs {
 	@Override
 	public void OnConnect(IOClient client) {
 		log.debug("A user connected :: " + client.getSessionID());
+
+		String content = String.format("5:::{\"name\":\"%s\",\"args\":[%s]}",
+				"clientId",
+				String.format("{\"id\":\"%s\"}", client.getSessionID()));
+		client.send(content);
 	}
 
 	@Override
