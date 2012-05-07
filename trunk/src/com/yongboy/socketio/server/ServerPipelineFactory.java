@@ -2,6 +2,7 @@ package com.yongboy.socketio.server;
 
 import static org.jboss.netty.channel.Channels.pipeline;
 
+import org.apache.log4j.Logger;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.handler.codec.http.HttpChunkAggregator;
@@ -16,8 +17,10 @@ import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
  */
 public class ServerPipelineFactory implements ChannelPipelineFactory {
 	private IOHandlerAbs handler;
+	private Logger log = Logger.getLogger(getClass());
 
 	public ServerPipelineFactory(IOHandlerAbs handler) {
+		log.info("Constructed ...");
 		this.handler = handler;
 	}
 
