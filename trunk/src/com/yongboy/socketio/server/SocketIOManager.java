@@ -41,6 +41,8 @@ public class SocketIOManager {
 		public boolean flash_policy_server = true;
 		public int flash_policy_port = 10843;
 		public String transports = "websocket,jsonp-polling,xhr-polling";
+		public String Static = "static";
+		
 
 		{
 			ResourceBundle bundle = ResourceBundle.getBundle("socketio");
@@ -56,6 +58,7 @@ public class SocketIOManager {
 			flash_policy_port = Integer.parseInt(bundle
 					.getString("flash_policy_port"));
 			transports = bundle.getString("transports");
+			Static = bundle.getString("static");
 		}
 	}
 
