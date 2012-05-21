@@ -117,7 +117,11 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		String reqURI = req.getUri();
 		log.debug(req.getMethod().getName() + " request uri " + reqURI);
 
-		if (reqURI.endsWith(".js") || reqURI.endsWith(".swf")) {
+		if (reqURI.equals("/") || reqURI.endsWith(".js")
+				|| reqURI.endsWith(".swf")
+				|| reqURI.toLowerCase().endsWith(".css")
+				|| reqURI.toLowerCase().endsWith(".htm")
+				|| reqURI.toLowerCase().endsWith(".html")) {
 			handleStaticRequest(req, e, reqURI);
 			return;
 		}
@@ -210,8 +214,21 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 	 */
 	private void handleStaticRequest(HttpRequest req, MessageEvent e,
 			String reqURI) throws IOException {
-		String fileName = SocketIOManager.getFileName(req.getUri());
-		String contextPath = getClass().getResource("/").toString() + fileName;
+		String fileName = null;
+
+		if (req.getUri().indexOf("/socket.io/") != -1) {
+			fileName = SocketIOManager.getFileName(req.getUri());
+		} else {
+			fileName = req.getUri();
+		}
+
+		if (fileName == null || fileName.trim().equals("/")
+				|| fileName.trim().equals("")) {
+			fileName = "index.html";
+		}
+
+		String contextPath = getClass().getResource("/").toString()
+				+ SocketIOManager.option.Static + "/" + fileName;
 		if (contextPath.startsWith("file:/")) {
 			contextPath = contextPath.substring(6);
 		}
