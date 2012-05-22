@@ -227,12 +227,25 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 			fileName = "index.html";
 		}
 
-		String contextPath = getClass().getResource("/").toString()
-				+ SocketIOManager.option.Static + "/" + fileName;
-		if (contextPath.startsWith("file:/")) {
-			contextPath = contextPath.substring(6);
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getResource("/").toString()).append(
+				SocketIOManager.option.Static);
+
+		if (!fileName.startsWith("/")) {
+			sb.append("/");
 		}
-		File file = new File(contextPath);
+		sb.append(fileName);
+		if (sb.indexOf("file:/") != -1) {
+			sb.delete(0, 6);
+		}
+
+		if (sb.indexOf("/") != 0) {
+			sb.insert(0, "/");
+		}
+
+		log.debug("contentPath : " + sb);
+
+		File file = new File(sb.toString());
 		RandomAccessFile raf = null;
 		try {
 			raf = new RandomAccessFile(file, "r");
