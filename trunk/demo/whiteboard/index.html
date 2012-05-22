@@ -1,80 +1,33 @@
 <!doctype html>
-
 <html>
 <head>
-
-<title>share whiteboard demo</title>
-
+<title>画板示范</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <!--Prevents iPhone, iPad, and touch devices from scrolling or zooming when touched-->
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
-
-<!--CSS-->
-<style type="text/css">
-html, body {
-  width:  100%;
-  height: 100%;
-}
-
-#canvas {
-  background-color: #333333;
-  position: absolute;
-  top: 35px;
-}
-
-#status {
-  color: #FFFFFF;
-  position: absolute;
-  cursor: default;
-  font-family: Helvetica, Verdana, sans-serif;
-  font-weight: bold;
-  margin: 10px;
-  top: 30px;
-}
-
-#controls {
-  background-color: #AAAAAA;
-  position: absolute;
-  font-family: Helvetica, Verdana, sans-serif;
-  font-weight: bold;
-  font-size: smaller;
-  padding: 3px;
-  width: 594px;
-  height: 25px;
-}
-
-select {
-  font-family: monospace;
-  font-size: medium;
-}
-
-* {
-  padding:0;
-  margin:0;
-}
-</style>
-
-<!--
-Load Canvas support for IE8. ExplorerCanvas courtesy Google. 
-See: http://code.google.com/p/explorercanvas/
--->
+<link rel="stylesheet" type="text/css" media="all" href="css/style.css" />
 <!--[if lt IE 9]>
-<script src="excanvas.js"></script>
+<script src="js/excanvas.js"></script>
 <![endif]-->
-
-<!--Load OrbiterMicro, minified version-->
-<script src="socket.io.js"></script>
-
-<!--Load UnionDraw application code-->
-<script src="UnionDraw.js"></script>
-
+<script src="js/socket.io.js"></script>
+<script type="text/javascript">
+var roomID = "myRoom";
+var currentClientId = new Date().getTime();
+var connUrl = 'http://localhost';
+var connOptions = {};
+</script>
+<script src="js/canvasdraw.js"></script>
+<script src="js/canvas-socketio.js"></script>
+<script src="js/canvas-menu.js"></script>
+<script src="js/canvas-touch.js"></script>
 </head>
-
 <body>
-  <!--Drop down menus for selecting line thickness and color-->
   <div id="controls">
+  <input type="button" id="pencil" value="Pencil" />
     Size:
     <select id="thickness" class="fixed">
-      <option value="1">1</option>
+      <option value="1" selected="selected">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
       <option value="4">4</option>
@@ -82,35 +35,22 @@ See: http://code.google.com/p/explorercanvas/
       <option value="10">10</option>
       <option value="20">20</option>
     </select>
-
     Color:
     <select id="color">
       <option value="#FFFFFF">#FFFFFF</option>
-      <option value="#AAAAAA">#AAAAAA</option>
+      <option value="#AAAAAA" selected="selected">#AAAAAA</option>
       <option value="#666666">#666666</option>
       <option value="#000000">#000000</option>
       <option value="#9BA16C">#9BA16C</option>
       <option value="#CC8F2B">#CC8F2B</option>
       <option value="#63631D">#63631D</option>
     </select>
-    
-    Shape:
-    <select id="shape">
-      <option value="">select ...</option>
-      <option value="rectangle">rectangle</option>
-      <option value="oval">oval</option>
-    </select>
-    
-    <a href="javascript:erase()">Eraser</a>
-    
-	&nbsp;&nbsp;
-	<input type="button" value="Clear" onClick="clearCanvas()" />
+    <input type="button" id="eraser" value="Eraser" />
+    &nbsp;
+	<input type="button" id="clear" value="Clear" />
   </div>
-  
   <!--The canvas where drawings will be displayed-->
-  <canvas id="canvas"></canvas>
-  
-  <!--A status text field, for displaying connection information-->
-  <div id="status"></div>
+  <canvas id="canvas" style="cursor: url(img/pencil.cur), default;"></canvas>
+  <div id="status">Loading ...</div>
 </body>
 </html>
