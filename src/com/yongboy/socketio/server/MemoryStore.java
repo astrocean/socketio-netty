@@ -87,9 +87,4 @@ public class MemoryStore implements Store {
 
 		return null;
 	}
-
-	public static void main(String[] args) {
-		clients.put("001", BlankIO.getInstance());
-		System.out.println(clients.containsKey("001"));
-	}
 }
