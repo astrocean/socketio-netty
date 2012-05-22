@@ -11,8 +11,7 @@ import com.yongboy.socketio.MainServer;
 public class WhiteboardServer {
 
 	public static void main(String[] args) {
-		MainServer chatServer = new MainServer(new WhiteboardHandler(),
-				9000);
+		MainServer chatServer = new MainServer(new WhiteboardHandler(), 80);
 		chatServer.start();
 	}
 }
