@@ -117,11 +117,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		String reqURI = req.getUri();
 		log.debug(req.getMethod().getName() + " request uri " + reqURI);
 
-		if (reqURI.equals("/") || reqURI.endsWith(".js")
-				|| reqURI.endsWith(".swf")
-				|| reqURI.toLowerCase().endsWith(".css")
-				|| reqURI.toLowerCase().endsWith(".htm")
-				|| reqURI.toLowerCase().endsWith(".html")) {
+		if (reqURI.equals("/") || reqURI.indexOf("/socket.io/1/") == -1) {
 			handleStaticRequest(req, e, reqURI);
 			return;
 		}
