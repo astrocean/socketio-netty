@@ -224,8 +224,15 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		}
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(getClass().getResource("/").toString()).append(
-				SocketIOManager.option.Static);
+		String resPath = getClass().getResource("/").toString();
+		log.debug("resPath : " + resPath);
+		if (resPath.startsWith("rsrc:") || resPath.startsWith("jar:")) {
+			sb.append(System.getProperty("user.dir")).append("/");
+		} else {
+			sb.append(resPath);
+		}
+
+		sb.append(SocketIOManager.option.Static);
 
 		if (!fileName.startsWith("/")) {
 			sb.append("/");
