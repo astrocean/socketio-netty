@@ -225,7 +225,6 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 		StringBuilder sb = new StringBuilder();
 		String resPath = getClass().getResource("/").toString();
-		log.debug("resPath : " + resPath);
 		if (resPath.startsWith("rsrc:") || resPath.startsWith("jar:")) {
 			sb.append(System.getProperty("user.dir")).append("/");
 		} else {
@@ -245,8 +244,6 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		if (sb.indexOf("/") != 0) {
 			sb.insert(0, "/");
 		}
-
-		log.debug("contentPath : " + sb);
 
 		File file = new File(sb.toString());
 		RandomAccessFile raf = null;
@@ -310,6 +307,9 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 			throws Exception {
 		log.debug("exceptionCaught now ...");
+		e.getCause().printStackTrace();
+		e.getChannel().close();
+
 		if (this.currentTransport == null) {
 			return;
 		}
@@ -327,9 +327,5 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 			GenericIO genericIO = (GenericIO) client;
 			genericIO.scheduleRemoveTask(this.handler);
 		}
-
-		log.info("ERROR !");
-		e.getCause().printStackTrace();
-		e.getChannel().close();
 	}
 }
