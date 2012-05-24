@@ -297,7 +297,14 @@ public abstract class ITransport {
 		String respContent = null;
 
 		for (String subContent : contentList) {
-			if (subContent.startsWith("5:")) {
+			if (subContent.startsWith("1:")) {
+				if(subContent.length() > 3){
+					client.send(subContent);
+					log.info("subcontent is " + subContent + " .length > 3");
+				}
+				
+				respContent = "1";
+			} else if (subContent.startsWith("5:")) {
 				handler.OnMessage(client, subContent);
 
 				respContent = "1";
