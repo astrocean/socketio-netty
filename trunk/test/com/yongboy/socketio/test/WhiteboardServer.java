@@ -24,9 +24,9 @@ import com.yongboy.socketio.server.transport.IOClient;
  */
 public class WhiteboardServer {
 	public static void main(String[] args) {
-		String channel = "/whiteboard";
+		String channel = "";
 		MainServer chatServer = new MainServer(new WhiteboardHandler(channel),
-				80);
+				8000);
 		chatServer.start();
 	}
 }
