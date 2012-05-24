@@ -24,7 +24,9 @@ import com.yongboy.socketio.server.transport.IOClient;
  */
 public class WhiteboardServer {
 	public static void main(String[] args) {
-		MainServer chatServer = new MainServer(new WhiteboardHandler(), 80);
+		String channel = "/whiteboard";
+		MainServer chatServer = new MainServer(new WhiteboardHandler(channel),
+				80);
 		chatServer.start();
 	}
 }
@@ -34,12 +36,26 @@ class WhiteboardHandler extends IOHandlerAbs {
 	// 房间的一对多<房间号,List<客户端>>
 	private ConcurrentMap<String, Set<IOClient>> roomClients = new ConcurrentHashMap<String, Set<IOClient>>();
 
+	private String channel = "";
+
+	public WhiteboardHandler() {
+		super();
+	}
+
+	/**
+	 * @param channel
+	 */
+	public WhiteboardHandler(String channel) {
+		this();
+		this.channel = channel;
+	}
+
 	@Override
 	public void OnConnect(IOClient client) {
 		log.debug("A user connected :: " + client.getSessionID());
 
-		String content = String.format("5:::{\"name\":\"%s\",\"args\":[%s]}",
-				"clientId",
+		String content = String.format("5::%s:{\"name\":\"%s\",\"args\":[%s]}",
+				this.channel, "clientId",
 				String.format("{\"id\":\"%s\"}", client.getSessionID()));
 		client.send(content);
 	}
@@ -65,8 +81,12 @@ class WhiteboardHandler extends IOHandlerAbs {
 		log.info("removed clients's size is " + clients.size());
 
 		// 通知其它客户端，有人离线
-		broadcastRoom(roomId, client, "roomCount", String.format(
-				"{\"room\":\"%s\",\"num\":%s}", roomId, clients.size()));
+		broadcastRoom(
+				roomId,
+				client,
+				"roomCount",
+				String.format("{\"room\":\"%s\",\"num\":%s}", roomId,
+						clients.size()));
 	}
 
 	@Override
@@ -95,9 +115,9 @@ class WhiteboardHandler extends IOHandlerAbs {
 					"{\"room\":\"%s\",\"num\":%s}", roomId, clientNums));
 
 			String content = String.format(
-					"5:::{\"name\":\"%s\",\"args\":[%s]}", "roomCount", String
-							.format("{\"room\":\"%s\",\"num\":%s}", roomId,
-									clientNums));
+					"5::%s:{\"name\":\"%s\",\"args\":[%s]}", this.channel,
+					"roomCount", String.format("{\"room\":\"%s\",\"num\":%s}",
+							roomId, clientNums));
 			client.send(content);
 
 			return;
@@ -112,7 +132,7 @@ class WhiteboardHandler extends IOHandlerAbs {
 		if (clients == null || clients.isEmpty())
 			return;
 
-		String content = String.format("5:::{\"name\":\"%s\",\"args\":[%s]}",
+		String content = String.format("5::%s:{\"name\":\"%s\",\"args\":[%s]}",this.channel, 
 				eventName, jsonString);
 		for (IOClient rc : clients) {
 			if (rc == null || rc.getSessionID().equals(client.getSessionID())) {
