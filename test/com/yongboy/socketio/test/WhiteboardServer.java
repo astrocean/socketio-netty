@@ -16,25 +16,19 @@ import com.yongboy.socketio.server.transport.GenericIO;
 import com.yongboy.socketio.server.transport.IOClient;
 
 /**
+ * 在线画报socket.io服务器端示范
  * 
  * @author yongboy
  * @time 2012-3-27
  * @version 1.0
  */
 public class WhiteboardServer {
-
 	public static void main(String[] args) {
 		MainServer chatServer = new MainServer(new WhiteboardHandler(), 80);
 		chatServer.start();
 	}
 }
 
-/**
- * 
- * @author nieyong
- * @time 2012-5-23
- * @version 1.0
- */
 class WhiteboardHandler extends IOHandlerAbs {
 	private Logger log = Logger.getLogger(this.getClass());
 	// 房间的一对多<房间号,List<客户端>>
@@ -70,11 +64,9 @@ class WhiteboardHandler extends IOHandlerAbs {
 		clients.remove(client);
 		log.info("removed clients's size is " + clients.size());
 
-		int clientNums = clients.size();
-
 		// 通知其它客户端，有人离线
 		broadcastRoom(roomId, client, "roomCount", String.format(
-				"{\"room\":\"%s\",\"num\":%s}", roomId, clientNums));
+				"{\"room\":\"%s\",\"num\":%s}", roomId, clients.size()));
 	}
 
 	@Override
@@ -83,15 +75,10 @@ class WhiteboardHandler extends IOHandlerAbs {
 				+ " :: echoing it back to :: " + client.getSessionID());
 		String jsonString = oriMessage.substring(oriMessage.indexOf('{'));
 		jsonString = jsonString.replaceAll("\\\\", "");
-
-		log.debug("jsonString " + jsonString);
-
 		JSONObject jsonObject = JSON.parseObject(jsonString);
 		String eventName = jsonObject.get("name").toString();
-
 		JSONArray argsArray = jsonObject.getJSONArray("args");
 		JSONObject obj = argsArray.getJSONObject(0);
-
 		String roomId = obj.getString("room");
 
 		if (eventName.equals("roomNotice")) {
@@ -119,13 +106,6 @@ class WhiteboardHandler extends IOHandlerAbs {
 		broadcastRoom(roomId, client, eventName, obj.toJSONString());
 	}
 
-	/**
-	 * @author nieyong
-	 * @time 2012-4-27
-	 * 
-	 * @param string
-	 * @param format
-	 */
 	private void broadcastRoom(String roomId, IOClient client,
 			String eventName, String jsonString) {
 		Set<IOClient> clients = roomClients.get(roomId);
