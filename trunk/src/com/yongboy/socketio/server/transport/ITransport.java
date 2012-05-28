@@ -69,7 +69,7 @@ public abstract class ITransport {
 	public abstract String getId();
 
 	/**
-	 * 在初始化GenericIOClient实例，并返回
+	 * 仅仅构造一个GenericIOClient实例，并返回
 	 * 
 	 * @author yongboy
 	 * @time 2012-3-27
@@ -79,8 +79,20 @@ public abstract class ITransport {
 	 * @param sessionId
 	 * @return
 	 */
-	protected abstract GenericIO doPrepareI0Client(ChannelHandlerContext ctx,
+	protected abstract GenericIO doNewI0Client(ChannelHandlerContext ctx,
 			HttpRequest req, String sessionId);
+
+	/**
+	 * 初始化连接动作
+	 * 
+	 * @author yongboy
+	 * @time 2012-5-28
+	 * 
+	 * @param client
+	 * @param info TODO
+	 * @param namespace TODO
+	 */
+	protected abstract void doPrepareAction(GenericIO client, String info, String namespace);
 
 	/**
 	 * 
@@ -122,7 +134,8 @@ public abstract class ITransport {
 		// 主动要求断开
 		if (reqURI.contains("?disconnect") || reqURI.contains("&disconnect")) {
 			log.debug("the request uri contains the 'disconnect' paremeter");
-			client.disconnect();
+			if (client != null)
+				client.disconnect();
 
 			return;
 		}
@@ -130,10 +143,10 @@ public abstract class ITransport {
 		boolean isNew = false;
 		if (client == null) {
 			log.debug("the client is null with id : " + sessionId);
-			client = doPrepareI0Client(ctx, req, sessionId);
+			client = doNewI0Client(ctx, req, sessionId);
 
 			store.add(sessionId, client);
-			this.handler.OnConnect(client);
+//			this.handler.OnConnect(client);
 			isNew = true;
 		}
 
@@ -150,6 +163,8 @@ public abstract class ITransport {
 			if (!isNew) {
 				client.reconnect(ctx, req);
 				client.heartbeat(this.handler);
+			}else{
+				client.connect(null);
 			}
 
 			return;
@@ -159,10 +174,10 @@ public abstract class ITransport {
 			log.debug("the request method " + req.getMethod());
 			return;
 		}
-		
+
 		// 增加判断是否存在连接已经关闭情况
 		Channel channel = e.getChannel();
-		if(channel == null || !channel.isOpen()){
+		if (channel == null || !channel.isOpen()) {
 			client.disconnect();
 			return;
 		}
@@ -231,10 +246,10 @@ public abstract class ITransport {
 		if (client == null) {
 			log.debug("initGenericClient the client is null with id : "
 					+ sessionId);
-			client = doPrepareI0Client(ctx, req, sessionId);
+			client = doNewI0Client(ctx, req, sessionId);
 
 			store.add(sessionId, client);
-			this.handler.OnConnect(client);
+//			this.handler.OnConnect(client);
 		}
 
 		return client;
@@ -298,11 +313,21 @@ public abstract class ITransport {
 
 		for (String subContent : contentList) {
 			if (subContent.startsWith("1:")) {
-				if(subContent.length() > 3){
-					client.send(subContent);
+				log.info("ori subcontent is " + subContent);
+				if (subContent.length() > 3) {
+					String namespace = null;
+					int endIndex = subContent.lastIndexOf('?');
+					if(endIndex == -1)
+						endIndex = subContent.length();
+					int startIndex = 3;
+					namespace = subContent.substring(startIndex, endIndex);
+					log.info("namespace is : " + namespace);
+					doPrepareAction(client, subContent, namespace);
 					log.info("subcontent is " + subContent + " .length > 3");
+					
+					this.handler.OnConnect(client);
 				}
-				
+
 				respContent = "1";
 			} else if (subContent.startsWith("5:")) {
 				handler.OnMessage(client, subContent);

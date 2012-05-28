@@ -119,4 +119,12 @@ public class BlankIO implements IOClient {
 	@Override
 	public void setOpen(boolean open) {
 	}
+
+	/* (non-Javadoc)
+	 * @see com.yongboy.socketio.server.transport.IOClient#getNamespace()
+	 */
+	@Override
+	public String getNamespace() {
+		return null;
+	}
 }
