@@ -23,6 +23,18 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	protected boolean open = false;
 	protected HttpRequest req;
 
+	/**
+	 * 命名空间
+	 */
+	private String namespace = "main";
+
+	public GenericIO(ChannelHandlerContext ctx, HttpRequest req, String uID,
+			String namespace) {
+		this(ctx, req, uID);
+
+		this.namespace = namespace;
+	}
+
 	public GenericIO(ChannelHandlerContext ctx, HttpRequest req, String uID) {
 		super();
 		this.ctx = ctx;
@@ -39,6 +51,10 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	}
 
 	public void send(String message) {
+		if (!message.startsWith("5:")) {
+			message = "5::" + getNamespace() + ":" + message;
+		}
+
 		sendEncoded(message);
 	}
 
@@ -50,13 +66,14 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	 * 
 	 */
 	public void heartbeat(final IOHandler handler) {
-		prepareHearbeat();
-
-		// add new task
-		// 定时设置client为不可用
-		scheduleClearTask(handler);
-
-		sendEncoded("2::");
+		// 以下为示范代码
+		/*
+		 * prepareHearbeat();
+		 * 
+		 * // add new task // 定时设置client为不可用 scheduleClearTask(handler);
+		 * 
+		 * sendEncoded("2::");
+		 */
 	}
 
 	protected void scheduleClearTask(final IOHandler handler) {
@@ -123,7 +140,10 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	 * 
 	 */
 	public void connect(String info) {
-		sendEncoded("1::");
+		if (info != null && info.length() > 0)
+			sendEncoded(info);
+		else
+			sendEncoded("1::");
 	}
 
 	/**
@@ -146,6 +166,24 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	@Override
 	public void setOpen(boolean open) {
 		this.open = open;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.yongboy.socketio.server.transport.IOClient#getNamespace()
+	 */
+	@Override
+	public String getNamespace() {
+		return this.namespace;
+	}
+
+	/**
+	 * @param namespace
+	 *            the namespace to set
+	 */
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
 	}
 
 	/*

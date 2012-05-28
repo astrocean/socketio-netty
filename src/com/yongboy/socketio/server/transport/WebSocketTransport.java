@@ -32,13 +32,22 @@ public class WebSocketTransport extends ITransport {
 	}
 
 	@Override
-	protected GenericIO doPrepareI0Client(ChannelHandlerContext ctx,
+	protected GenericIO doNewI0Client(ChannelHandlerContext ctx,
 			HttpRequest req, String sessionId) {
 		WebSocketIO client = new WebSocketIO(ctx, req, sessionId);
-		client.connect(null);
-		client.heartbeat(this.handler);
 		return client;
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.yongboy.socketio.server.transport.ITransport#doPrepareAction(com.yongboy.socketio.server.transport.GenericIO)
+	 */
+	@Override
+	protected void doPrepareAction(GenericIO client, String info, String namespace) {
+		client.setNamespace(namespace);
+		client.connect(info);
+		client.heartbeat(this.handler);
+	}
+	
 
 	@Override
 	public void doHandle(ChannelHandlerContext ctx, HttpRequest req,
@@ -85,10 +94,10 @@ public class WebSocketTransport extends ITransport {
 		}
 
 		log.debug("the client is null now ...");
-		client = doPrepareI0Client(ctx, req, sessionId);
-
+		client = doNewI0Client(ctx, req, sessionId);
+		client.connect(null);
 		SocketIOManager.getDefaultStore().add(sessionId, client);
-		this.handler.OnConnect(client);
+//		this.handler.OnConnect(client);
 	}
 
 	/*

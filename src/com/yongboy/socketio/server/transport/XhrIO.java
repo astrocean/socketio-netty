@@ -129,7 +129,10 @@ public class XhrIO extends GenericIO {
 
 	@Override
 	public void connect(String message) {
-		sendDirectMessage("1::");
+		if (message == null)
+			sendDirectMessage("1::");
+		else
+			sendDirectMessage(message);
 	}
 
 	@Override

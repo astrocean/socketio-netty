@@ -31,12 +31,19 @@ public class JsonpPollingTransport extends ITransport {
 	 * org.jboss.netty.handler.codec.http.HttpRequest, java.lang.String)
 	 */
 	@Override
-	protected GenericIO doPrepareI0Client(ChannelHandlerContext ctx,
+	protected GenericIO doNewI0Client(ChannelHandlerContext ctx,
 			HttpRequest req, String sessionId) {
 		JsonpIO client = new JsonpIO(ctx, req, sessionId);
-		client.prepare();
-		client.connect(null);
-
 		return client;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.yongboy.socketio.server.transport.ITransport#doPrepareAction(com.yongboy.socketio.server.transport.GenericIO)
+	 */
+	@Override
+	protected void doPrepareAction(GenericIO client, String info, String namespace) {
+		client.setNamespace(namespace);
+		client.prepare();
+		client.connect(info);
 	}
 }

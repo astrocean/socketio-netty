@@ -101,4 +101,13 @@ public interface IOClient {
 	 * @param open
 	 */
 	void setOpen(boolean open);
+
+	/**
+	 * 获取命名空间 namespaces (ie: multiple sockets)
+	 * 
+	 * @author yongboy
+	 * @time 2012-5-28
+	 * 
+	 */
+	String getNamespace();
 }

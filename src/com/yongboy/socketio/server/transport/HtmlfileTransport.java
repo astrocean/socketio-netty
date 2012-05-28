@@ -32,15 +32,21 @@ public class HtmlfileTransport extends ITransport {
 	 * org.jboss.netty.handler.codec.http.HttpRequest, java.lang.String)
 	 */
 	@Override
-	protected GenericIO doPrepareI0Client(ChannelHandlerContext ctx,
+	protected GenericIO doNewI0Client(ChannelHandlerContext ctx,
 			HttpRequest req, String sessionId) {
 		HtmlfileIO client = new HtmlfileIO(ctx, req, sessionId);
-
+		return client;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.yongboy.socketio.server.transport.ITransport#doPrepareAction(com.yongboy.socketio.server.transport.GenericIO)
+	 */
+	@Override
+	protected void doPrepareAction(GenericIO client, String info, String namespace) {
+		client.setNamespace(namespace);
 		client.prepare();
-		client.connect(null);
+		client.connect(info);
 
 		client.heartbeat(this.handler);
-
-		return client;
 	}
 }

@@ -24,7 +24,7 @@ public class FlashSocketTransport extends WebSocketTransport {
 	}
 
 	@Override
-	protected GenericIO doPrepareI0Client(ChannelHandlerContext ctx,
+	protected GenericIO doNewI0Client(ChannelHandlerContext ctx,
 			HttpRequest req, String sessionId) {
 		FlashSocketIO client = new FlashSocketIO(ctx, req, sessionId);
 		client.heartbeat(this.handler);
