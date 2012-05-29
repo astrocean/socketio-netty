@@ -9,7 +9,7 @@ import com.yongboy.socketio.MainServer;
  * @time 2012-3-27
  * @version 1.0
  */
-public class WhiteboardServer {
+public class MultiServerDemo {
 	public static void main(String[] args) {
 		int port = 80;
 
@@ -18,7 +18,9 @@ public class WhiteboardServer {
 			port = Integer.parseInt(envPort.trim());
 		}
 
-		MainServer mainServer = new MainServer(new WhiteboardHandler(), port);
+		MainServer mainServer = new MainServer(port);
+		mainServer.addNamespace("/whiteboard", new WhiteboardHandler());
+		mainServer.addNamespace("/chat", new DemoChatHandler());
 		mainServer.start();
 	}
 }

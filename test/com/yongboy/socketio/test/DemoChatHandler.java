@@ -110,7 +110,7 @@ public class DemoChatHandler extends IOHandlerAbs {
 	private void handleAckNoticName(IOClient client, String oriMessage,
 			Object obj) {
 		// 处理带有 消息id+ 的情况
-		boolean aplus = oriMessage.matches("\\d:\\d{1,}\\+::.*?");
+		boolean aplus = oriMessage.matches("\\d:\\d{1,}\\+:.*:.*?");
 		if (aplus) {
 			String aPlusStr = oriMessage.substring(2,
 					oriMessage.indexOf('+') + 1);
@@ -125,21 +125,21 @@ public class DemoChatHandler extends IOHandlerAbs {
 	}
 
 	private void emit(String eventName, Map<String, String> nicknames) {
-		String content = String.format("5:::{\"name\":\"%s\",\"args\":[%s]}",
+		String content = String.format("{\"name\":\"%s\",\"args\":[%s]}",
 				eventName, JSON.toJSONString(nicknames));
 		super.broadcast(content);
 	}
 
 	private void emit(String eventName, String message) {
 		String content = String.format(
-				"5:::{\"name\":\"%s\",\"args\":[\"%s\"]}", eventName, message);
+				"{\"name\":\"%s\",\"args\":[\"%s\"]}", eventName, message);
 		super.broadcast(content);
 	}
 
 	private void emit(IOClient client, String eventName, String message,
 			String message2) {
 		String content = String.format(
-				"5:::{\"name\":\"%s\",\"args\":[\"%s\",\"%s\"]}", eventName,
+				"{\"name\":\"%s\",\"args\":[\"%s\",\"%s\"]}", eventName,
 				message, message2);
 		super.broadcast(client, content);
 	}
