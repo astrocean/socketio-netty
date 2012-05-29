@@ -60,6 +60,12 @@ public class MainServer {
 		return Collections.unmodifiableCollection(handlerMap.values());
 	}
 
+	/**
+	 * 
+	 * @param handler
+	 * @param socketIOPort
+	 * @param flashSecurityPort
+	 */
 	public MainServer(IOHandlerAbs handler, int socketIOPort,
 			int flashSecurityPort) {
 		this(socketIOPort, flashSecurityPort);
@@ -67,20 +73,48 @@ public class MainServer {
 		addNamespace("", handler);
 	}
 
+	/**
+	 * 
+	 * @param handler
+	 * @param socketIOPort
+	 */
 	public MainServer(IOHandlerAbs handler, int socketIOPort) {
 		this(handler, socketIOPort, SocketIOManager.option.flash_policy_port);
 	}
 
+	/**
+	 * 
+	 * @param socketIOPort
+	 * @param flashSecurityPort
+	 */
 	public MainServer(int socketIOPort, int flashSecurityPort) {
 		this(socketIOPort);
 		this.flashSecurityPort = flashSecurityPort;
 	}
 
+	/**
+	 * 
+	 * @param socketIOPort
+	 */
 	public MainServer(int socketIOPort) {
 		this.socketIOPort = socketIOPort;
 	}
 
+	/**
+	 * 
+	 * @author yongboy
+	 * @time 2012-5-29
+	 * 
+	 * @param namespace
+	 * @param handler
+	 */
 	public void addNamespace(String namespace, IOHandlerAbs handler) {
+		if (namespace == null)
+			return;
+		if (namespace.length() > 0 && !namespace.startsWith("/")) {
+			namespace = "/" + namespace;
+		}
+
 		handlerMap.put(namespace, handler);
 	}
 
@@ -120,6 +154,12 @@ public class MainServer {
 		}
 	}
 
+	/**
+	 * 
+	 * @author yongboy
+	 * @time 2012-5-29
+	 * @version 1.0
+	 */
 	private static class ShutdownHooks extends java.lang.Thread {
 		private MainServer server;
 
