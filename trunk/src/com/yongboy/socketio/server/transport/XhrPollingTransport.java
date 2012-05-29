@@ -4,13 +4,13 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
-import com.yongboy.socketio.server.IOHandlerAbs;
+import com.yongboy.socketio.MainServer;
 import com.yongboy.socketio.server.Transports;
 
 public class XhrPollingTransport extends ITransport {
 
-	public XhrPollingTransport(IOHandlerAbs handler, HttpRequest req) {
-		super(handler, req);
+	public XhrPollingTransport(HttpRequest req) {
+		super(req);
 	}
 
 	/*
@@ -47,7 +47,7 @@ public class XhrPollingTransport extends ITransport {
 		if (req.getMethod() == HttpMethod.GET) { // 非第一次请求时
 			client.reconnect(ctx, req);
 
-			client.heartbeat(this.handler);
+			client.heartbeat(MainServer.getIOHandler(client));
 		}
 
 		return client;
@@ -76,7 +76,8 @@ public class XhrPollingTransport extends ITransport {
 	 * yongboy.socketio.server.transport.GenericIO)
 	 */
 	@Override
-	protected void doPrepareAction(GenericIO client, String info, String namespace) {
+	protected void doPrepareAction(GenericIO client, String info,
+			String namespace) {
 		client.setNamespace(namespace);
 		client.prepare();
 		client.connect(info);

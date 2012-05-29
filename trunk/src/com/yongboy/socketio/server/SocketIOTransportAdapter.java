@@ -38,6 +38,7 @@ import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
 import org.jboss.netty.util.CharsetUtil;
 
+import com.yongboy.socketio.MainServer;
 import com.yongboy.socketio.server.transport.BlankIO;
 import com.yongboy.socketio.server.transport.GenericIO;
 import com.yongboy.socketio.server.transport.IOClient;
@@ -47,12 +48,12 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 	private static final Logger log = Logger
 			.getLogger(SocketIOTransportAdapter.class);
 
-	private IOHandlerAbs handler;
+	// private IOHandlerAbs handler;
 	private ITransport currentTransport = null;
 
-	public SocketIOTransportAdapter(IOHandlerAbs handler) {
+	public SocketIOTransportAdapter() {
 		super();
-		this.handler = handler;
+		// this.handler = handler;
 	}
 
 	private String getUniqueID() {
@@ -80,7 +81,8 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 			if (client instanceof GenericIO) {
 				GenericIO genericIO = (GenericIO) client;
-				genericIO.scheduleRemoveTask(this.handler);
+				genericIO.scheduleRemoveTask(MainServer
+						.getIOHandler(genericIO));
 			}
 		}
 
@@ -91,7 +93,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		client.disconnect();
 		SocketIOManager.getDefaultStore().remove(client.getSessionID());
 
-		handler.OnDisconnect(client);
+		MainServer.getIOHandler(client).OnDisconnect(client);
 	}
 
 	@Override
@@ -129,7 +131,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		}
 
 		if (currentTransport == null) {
-			currentTransport = Transports.getTransportByReq(handler, req);
+			currentTransport = Transports.getTransportByReq(req);
 		}
 
 		if (currentTransport != null) {
@@ -325,7 +327,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 		if (client instanceof GenericIO) {
 			GenericIO genericIO = (GenericIO) client;
-			genericIO.scheduleRemoveTask(this.handler);
+			genericIO.scheduleRemoveTask(MainServer.getIOHandler(genericIO));
 		}
 	}
 }

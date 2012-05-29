@@ -13,7 +13,7 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 
-import com.yongboy.socketio.server.IOHandlerAbs;
+import com.yongboy.socketio.MainServer;
 import com.yongboy.socketio.server.SocketIOManager;
 import com.yongboy.socketio.server.Transports;
 
@@ -22,8 +22,8 @@ public class WebSocketTransport extends ITransport {
 			.getLogger(WebSocketTransport.class);
 	private WebSocketServerHandshaker handshaker;
 
-	public WebSocketTransport(IOHandlerAbs handler, HttpRequest req) {
-		super(handler, req);
+	public WebSocketTransport(HttpRequest req) {
+		super(req);
 	}
 
 	@Override
@@ -37,17 +37,21 @@ public class WebSocketTransport extends ITransport {
 		WebSocketIO client = new WebSocketIO(ctx, req, sessionId);
 		return client;
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.yongboy.socketio.server.transport.ITransport#doPrepareAction(com.yongboy.socketio.server.transport.GenericIO)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yongboy.socketio.server.transport.ITransport#doPrepareAction(com.
+	 * yongboy.socketio.server.transport.GenericIO)
 	 */
 	@Override
-	protected void doPrepareAction(GenericIO client, String info, String namespace) {
+	protected void doPrepareAction(GenericIO client, String info,
+			String namespace) {
 		client.setNamespace(namespace);
 		client.connect(info);
-		client.heartbeat(this.handler);
+		client.heartbeat(MainServer.getIOHandler(client));
 	}
-	
 
 	@Override
 	public void doHandle(ChannelHandlerContext ctx, HttpRequest req,
@@ -74,7 +78,7 @@ public class WebSocketTransport extends ITransport {
 	 * 
 	 * @author yongboy
 	 * @time 2012-5-4
-	 *
+	 * 
 	 * @param ctx
 	 * @param req
 	 * @param sessionId
@@ -97,7 +101,7 @@ public class WebSocketTransport extends ITransport {
 		client = doNewI0Client(ctx, req, sessionId);
 		client.connect(null);
 		SocketIOManager.getDefaultStore().add(sessionId, client);
-//		this.handler.OnConnect(client);
+		// this.handler.OnConnect(client);
 	}
 
 	/*
@@ -138,7 +142,8 @@ public class WebSocketTransport extends ITransport {
 		String respContent = handleContent(client, content);
 		log.debug("respContent " + respContent);
 
-		client.sendEncoded(respContent);
+		client.send(respContent);
+		// client.sendEncoded(respContent);
 	}
 
 	/**

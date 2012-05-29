@@ -14,6 +14,12 @@ import com.yongboy.socketio.server.IOHandler;
 import com.yongboy.socketio.server.SocketIOManager;
 import com.yongboy.socketio.server.Transports;
 
+/**
+ * 
+ * @author yongboy
+ * @time 2012-5-29
+ * @version 1.0
+ */
 public class HtmlfileIO extends GenericIO {
 	private final static String TEMPLATE = "<script>_('%s');</script>";
 

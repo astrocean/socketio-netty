@@ -65,7 +65,8 @@ public abstract class IOHandlerAbs implements IOHandler {
 	 */
 	protected void ackNotify(IOClient client, String messageIdPlusStr,
 			Object obj) {
-		StringBuilder builder = new StringBuilder("6:::");
+		StringBuilder builder = new StringBuilder("6::");
+		builder.append(client.getNamespace()).append(":");
 
 		String formateJson = JSON.toJSONString(obj);
 		if (formateJson.startsWith("[") && formateJson.endsWith("]")) {

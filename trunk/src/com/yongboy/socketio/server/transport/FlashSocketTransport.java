@@ -3,7 +3,6 @@ package com.yongboy.socketio.server.transport;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
-import com.yongboy.socketio.server.IOHandlerAbs;
 import com.yongboy.socketio.server.Transports;
 
 /**
@@ -14,8 +13,8 @@ import com.yongboy.socketio.server.Transports;
  */
 public class FlashSocketTransport extends WebSocketTransport {
 
-	public FlashSocketTransport(IOHandlerAbs handler, HttpRequest req) {
-		super(handler, req);
+	public FlashSocketTransport(HttpRequest req) {
+		super(req);
 	}
 
 	@Override
@@ -27,8 +26,6 @@ public class FlashSocketTransport extends WebSocketTransport {
 	protected GenericIO doNewI0Client(ChannelHandlerContext ctx,
 			HttpRequest req, String sessionId) {
 		FlashSocketIO client = new FlashSocketIO(ctx, req, sessionId);
-		client.heartbeat(this.handler);
-		client.connect(null);
 		return client;
 	}
 }

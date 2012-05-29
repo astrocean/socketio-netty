@@ -26,7 +26,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	/**
 	 * 命名空间
 	 */
-	private String namespace = "main";
+	private String namespace = "";
 
 	public GenericIO(ChannelHandlerContext ctx, HttpRequest req, String uID,
 			String namespace) {
@@ -51,7 +51,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	}
 
 	public void send(String message) {
-		if (!message.startsWith("5:")) {
+		if (!message.matches("\\d:.*?")) {
 			message = "5::" + getNamespace() + ":" + message;
 		}
 
@@ -61,7 +61,7 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	/**
 	 * 仅作为示范，会被子类重写
 	 * 
-	 * @author nieyong
+	 * @author yongboy
 	 * @time 2012-4-6
 	 * 
 	 */
@@ -183,7 +183,8 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	 *            the namespace to set
 	 */
 	public void setNamespace(String namespace) {
-		this.namespace = namespace;
+		if (namespace != null)
+			this.namespace = namespace;
 	}
 
 	/*

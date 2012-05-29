@@ -52,9 +52,8 @@ public enum Transports {
 		return uri.contains(getUrlPattern());
 	}
 
-	public static ITransport getTransportByReq(IOHandlerAbs handler,
-			HttpRequest req) {
-		if (req == null || handler == null)
+	public static ITransport getTransportByReq(HttpRequest req) {
+		if (req == null)
 			return null;
 
 		String uri = req.getUri();
@@ -75,8 +74,7 @@ public enum Transports {
 		Class<? extends ITransport> clazz = targetTransport.getTransportClass();
 		Constructor<? extends ITransport> constructor = null;
 		try {
-			constructor = clazz.getDeclaredConstructor(IOHandlerAbs.class,
-					HttpRequest.class);
+			constructor = clazz.getDeclaredConstructor(HttpRequest.class);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
@@ -87,7 +85,7 @@ public enum Transports {
 			return null;
 
 		try {
-			return constructor.newInstance(handler, req);
+			return constructor.newInstance(req);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
