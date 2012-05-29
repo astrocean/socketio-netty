@@ -52,17 +52,8 @@ public class DemoChatHandler extends IOHandlerAbs {
 		log.debug("Got a message :: " + oriMessage
 				+ " :: echoing it back to :: " + client.getSessionID());
 		String jsonString = oriMessage.substring(oriMessage.indexOf('{'));
-
-//		log.debug("json " + jsonString.replaceAll("\\\\", ""));
-//		log.debug("json " + jsonString.replaceAll("\\", ""));
-//		log.debug("json " + jsonString.replaceAll("\\\"", "\""));
-//		
-//		if (jsonString.indexOf("\\\\") != -1) {
-			jsonString = jsonString.replaceAll("\\\\", "");
-//		}
-
+		jsonString = jsonString.replaceAll("\\\\", "");
 		log.debug("jsonString " + jsonString);
-
 		JSONObject jsonObject = JSON.parseObject(jsonString);
 		String eventName = jsonObject.get("name").toString();
 
@@ -131,8 +122,8 @@ public class DemoChatHandler extends IOHandlerAbs {
 	}
 
 	private void emit(String eventName, String message) {
-		String content = String.format(
-				"{\"name\":\"%s\",\"args\":[\"%s\"]}", eventName, message);
+		String content = String.format("{\"name\":\"%s\",\"args\":[\"%s\"]}",
+				eventName, message);
 		super.broadcast(content);
 	}
 
