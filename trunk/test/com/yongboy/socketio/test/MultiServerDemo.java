@@ -11,8 +11,11 @@ import com.yongboy.socketio.MainServer;
  */
 public class MultiServerDemo {
 	public static void main(String[] args) {
-		int port = 80;
+		int port = 9000;
 
+		/**
+		 * 兼容cloudfoudry平台
+		 */
 		String envPort = System.getenv("VCAP_APP_PORT");
 		if (envPort != null && envPort.trim().length() > 0) {
 			port = Integer.parseInt(envPort.trim());
