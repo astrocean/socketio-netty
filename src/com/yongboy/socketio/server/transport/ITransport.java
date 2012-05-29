@@ -23,7 +23,7 @@ import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.util.CharsetUtil;
 
-import com.yongboy.socketio.server.IOHandlerAbs;
+import com.yongboy.socketio.MainServer;
 import com.yongboy.socketio.server.SocketIOManager;
 import com.yongboy.socketio.server.Store;
 
@@ -36,12 +36,10 @@ import com.yongboy.socketio.server.Store;
  */
 public abstract class ITransport {
 	private static final Logger log = Logger.getLogger(ITransport.class);
-	protected IOHandlerAbs handler;
 	protected Store store;
 	protected HttpRequest req;
 
-	public ITransport(IOHandlerAbs handler, HttpRequest req) {
-		this.handler = handler;
+	public ITransport(HttpRequest req) {
 		this.req = req;
 
 		this.store = SocketIOManager.getDefaultStore();
@@ -89,10 +87,13 @@ public abstract class ITransport {
 	 * @time 2012-5-28
 	 * 
 	 * @param client
-	 * @param info TODO
-	 * @param namespace TODO
+	 * @param info
+	 *            TODO
+	 * @param namespace
+	 *            TODO
 	 */
-	protected abstract void doPrepareAction(GenericIO client, String info, String namespace);
+	protected abstract void doPrepareAction(GenericIO client, String info,
+			String namespace);
 
 	/**
 	 * 
@@ -146,7 +147,6 @@ public abstract class ITransport {
 			client = doNewI0Client(ctx, req, sessionId);
 
 			store.add(sessionId, client);
-//			this.handler.OnConnect(client);
 			isNew = true;
 		}
 
@@ -162,8 +162,8 @@ public abstract class ITransport {
 		if (req.getMethod() == HttpMethod.GET) { // 非第一次请求时
 			if (!isNew) {
 				client.reconnect(ctx, req);
-				client.heartbeat(this.handler);
-			}else{
+				client.heartbeat(MainServer.getIOHandler(client));
+			} else {
 				client.connect(null);
 			}
 
@@ -249,7 +249,7 @@ public abstract class ITransport {
 			client = doNewI0Client(ctx, req, sessionId);
 
 			store.add(sessionId, client);
-//			this.handler.OnConnect(client);
+			// this.handler.OnConnect(client);
 		}
 
 		return client;
@@ -312,36 +312,50 @@ public abstract class ITransport {
 		String respContent = null;
 
 		for (String subContent : contentList) {
-			if (subContent.startsWith("1:")) {
-				log.info("ori subcontent is " + subContent);
-				if (subContent.length() > 3) {
-					String namespace = null;
-					int endIndex = subContent.lastIndexOf('?');
-					if(endIndex == -1)
-						endIndex = subContent.length();
-					int startIndex = 3;
-					namespace = subContent.substring(startIndex, endIndex);
-					log.info("namespace is : " + namespace);
-					doPrepareAction(client, subContent, namespace);
-					log.info("subcontent is " + subContent + " .length > 3");
-					
-					this.handler.OnConnect(client);
+			int messageType = -1;
+
+			try {
+				messageType = Integer.parseInt(subContent.substring(0, 1));
+			} catch (Exception e) {
+			}
+
+			switch (messageType) {
+				case 5:
+				case 4:
+				case 3: {
+					MainServer.getIOHandler(client).OnMessage(client, subContent);
+					respContent = "1";
 				}
-
-				respContent = "1";
-			} else if (subContent.startsWith("5:")) {
-				handler.OnMessage(client, subContent);
-
-				respContent = "1";
-			} else if (subContent.equals("2::")) {
-				log.debug("got heartbeat packets");
-				client.heartbeat(this.handler);
-
-				respContent = "1";
-			} else if (subContent.startsWith("0::") || subContent.equals("0::")) {
-				handler.OnDisconnect(client);
-
-				respContent = subContent;
+					break;
+				case 2: {
+					log.debug("got heartbeat packets");
+					client.heartbeat(MainServer.getIOHandler(client));
+					respContent = "1";
+				}
+					break;
+				case 1: {
+					if (subContent.length() > 3) {
+						String namespace = null;
+						int endIndex = subContent.lastIndexOf('?');
+						if (endIndex == -1)
+							endIndex = subContent.length();
+						int startIndex = 3;
+						namespace = subContent.substring(startIndex, endIndex);
+						doPrepareAction(client, subContent, namespace);
+					} else {
+						doPrepareAction(client, subContent, null);
+					}
+	
+					MainServer.getIOHandler(client).OnConnect(client);
+	
+					respContent = "1";
+				}
+					break;
+				case 0: {
+					MainServer.getIOHandler(client).OnDisconnect(client);
+					respContent = subContent;
+				}
+					break;
 			}
 
 			if (respContent == null) {

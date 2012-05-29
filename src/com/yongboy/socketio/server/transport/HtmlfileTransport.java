@@ -3,13 +3,13 @@ package com.yongboy.socketio.server.transport;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
-import com.yongboy.socketio.server.IOHandlerAbs;
+import com.yongboy.socketio.MainServer;
 import com.yongboy.socketio.server.Transports;
 
 public class HtmlfileTransport extends ITransport {
 
-	public HtmlfileTransport(IOHandlerAbs handler, HttpRequest req) {
-		super(handler, req);
+	public HtmlfileTransport(HttpRequest req) {
+		super(req);
 	}
 
 	@Override
@@ -37,16 +37,21 @@ public class HtmlfileTransport extends ITransport {
 		HtmlfileIO client = new HtmlfileIO(ctx, req, sessionId);
 		return client;
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.yongboy.socketio.server.transport.ITransport#doPrepareAction(com.yongboy.socketio.server.transport.GenericIO)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yongboy.socketio.server.transport.ITransport#doPrepareAction(com.
+	 * yongboy.socketio.server.transport.GenericIO)
 	 */
 	@Override
-	protected void doPrepareAction(GenericIO client, String info, String namespace) {
+	protected void doPrepareAction(GenericIO client, String info,
+			String namespace) {
 		client.setNamespace(namespace);
 		client.prepare();
 		client.connect(info);
 
-		client.heartbeat(this.handler);
+		client.heartbeat(MainServer.getIOHandler(client));
 	}
 }

@@ -10,6 +10,12 @@ import com.yongboy.socketio.server.IOHandler;
 import com.yongboy.socketio.server.SocketIOManager;
 import com.yongboy.socketio.server.Transports;
 
+/**
+ * 
+ * @author yongboy
+ * @time 2012-5-29
+ * @version 1.0
+ */
 public class WebSocketIO extends GenericIO {
 	private static final Logger log = Logger.getLogger(WebSocketIO.class);
 
