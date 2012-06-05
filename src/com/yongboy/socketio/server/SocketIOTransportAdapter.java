@@ -81,8 +81,8 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 			if (client instanceof GenericIO) {
 				GenericIO genericIO = (GenericIO) client;
-				genericIO.scheduleRemoveTask(MainServer
-						.getIOHandler(genericIO));
+				genericIO
+						.scheduleRemoveTask(MainServer.getIOHandler(genericIO));
 			}
 		}
 
@@ -262,6 +262,7 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 
 		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
 		setContentLength(response, fileLength);
+		response.addHeader("Content-Type", getContentType(file));
 
 		Channel ch = e.getChannel();
 		ch.write(response);
@@ -289,6 +290,30 @@ public class SocketIOTransportAdapter extends SimpleChannelUpstreamHandler {
 		if (!isKeepAlive(req)) {
 			writeFuture.addListener(ChannelFutureListener.CLOSE);
 		}
+	}
+
+	private String getContentType(File file) {
+		if (file == null) {
+			return "application/octet-stream";
+		}
+
+		String fileName = file.getName();
+		if (fileName.toLowerCase().endsWith(".js")) {
+			return "application/x-javascript";
+		} else if (fileName.toLowerCase().endsWith(".css")) {
+			return "text/css";
+		} else if (fileName.toLowerCase().endsWith(".swf")) {
+			return "application/x-shockwave-flash";
+		} else if (fileName.toLowerCase().endsWith(".htm")
+				|| fileName.toLowerCase().endsWith(".html")) {
+			return "text/html";
+		} else if (fileName.toLowerCase().endsWith(".jpg")
+				|| fileName.toLowerCase().endsWith(".png")
+				|| fileName.toLowerCase().endsWith(".gif")) {
+			return "image/*";
+		}
+
+		return "application/octet-stream";
 	}
 
 	private void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req,
