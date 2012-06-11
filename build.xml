@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+	@author yongboy
+	@date 2012-06-11
+	@desc
+		two tasks : 
+		jar : 单纯打包成socketio-netty-1.0.jar文件，不包括测试代码
+		deploy : 为测试代码打包部署，测试使用
+		
+		编译后结果，见 jar 目录
+ -->
+ 
+<project name="export the jar" default="jar" basedir=".">
+	<property name="target" location="jar" />
+
+	<property name="java.target.version" value="1.6" />
+	<property name="jar.name" value="socketio-netty-1.0" />
+	<property name="build" location="build" />
+	<property name="lib" location="lib/" />
+	<property name="excludes"
+		value="**/.svn/*,**/.nbattrs,**/.project,**/.classpath" />
+
+	<target name="clean" description="Delete existing output directories">
+		<delete dir="${target}" />
+		<delete dir="${build}" />
+		<delete file="${jar.name}.jar" />
+		<mkdir dir="${target}" />
+	</target>
+
+	<target name="compile" depends="clean" description="Compile the souce">
+		<mkdir dir="${build}" />
+
+		<javac srcdir="src" destdir="${build}" debug="on"
+			optimize="on" deprecation="on" source="1.6" target="${java.target.version}">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<path id="classpath">
+	    <fileset dir="${lib}" includes="*.jar"/>
+	</path>
+	
+	<target name="jar" depends="compile">		
+		<echo message="正在生成jar包..." />
+		<jar jarfile="${target}/${jar.name}.jar" basedir="${build}" />
+		
+		<zip destfile="${target}/${jar.name}.jar"
+		       basedir="source/"
+		       includes="**/socketio.properties"
+		  	   update = "true"
+		/>
+	</target>
+
+	
+	<!-- 部署测试使用 -->	
+	<path id="test-classpath">
+	    <fileset dir="${target}/lib" includes="*.jar"/>
+	</path>
+	<target name="test-compile" description="Compile the test souce">
+		<delete dir="${build}" />
+		<mkdir dir="${build}" />
+
+		<javac srcdir="test" destdir="${build}" debug="on"
+			optimize="on" deprecation="on" source="1.6" target="${java.target.version}">
+			<classpath>
+				<fileset dir="${target}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="test-copyjar">
+		<echo message="拷贝测试代码依赖jar文件" />
+		
+		<copy todir="${target}/lib">
+			<fileset dir="${target}">
+				<include name="${jar.name}.jar" />
+			</fileset>
+			
+			<fileset dir="${lib}">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+		<delete file="${target}/${jar.name}.jar" />
+	</target>
+	
+	<target name="deploy" depends="compile,jar,test-copyjar,test-compile" description="deploy the example">
+        <pathconvert property="mf.classpath" pathsep=" ">
+            <path refid="test-classpath" />
+            <mapper>
+                <chainedmapper>
+                    <flattenmapper />
+                    <globmapper from="*" to="lib/*" />
+                </chainedmapper>
+            </mapper>
+        </pathconvert>
+		
+		<echo message="拷贝依赖资源文件和脚本等" />
+		<copy todir="${target}/">
+			<fileset dir="source/">
+				<exclude name="**/socketio.properties" />
+			</fileset>
+			<fileset dir="script/">
+				<include name="**/*.bat" />
+				<include name="**/*.sh" />
+			</fileset>
+		</copy>
+		
+		<echo message="正在生成测试部署jar包..." />
+		<jar jarfile="${target}/server.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Class-Path" value=". ${mf.classpath} "/>
+				<!-- 这里定义运行接口,main方法所在类 -->
+				<attribute name="Main-class" value="com.yongboy.socketio.test.MultiServerDemo" />
+			</manifest>
+		</jar>
+	</target>
+</project> 
