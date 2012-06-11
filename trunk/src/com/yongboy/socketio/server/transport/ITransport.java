@@ -403,7 +403,6 @@ public abstract class ITransport {
 	 * @param req
 	 * @return
 	 */
-	@Deprecated
 	protected String getSessionId(HttpRequest req) {
 		String reqURI = req.getUri();
 		String[] parts = reqURI.substring(1).split("/");
