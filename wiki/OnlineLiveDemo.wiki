@@ -1,5 +1,5 @@
 在线示范首页
-http://socketio.yongboy.com/whiteboard.html
+http://socketio.yongboy.com/
 
 
 
