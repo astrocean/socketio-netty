@@ -1,0 +1,10 @@
+NOTE:
+1.	Just drop the chat folder into your tomcat's webapps
+2.	run the com.yongboy.socketio.test.ChatServer
+3.  run the tomcat,access your chat/chat.html
+4.  enjoy it~
+
+
+1. 把示范存放到 tomcat webapps相应目录
+2. 启动com.yongboy.socketio.test.ChatServer
+3. 访问示范chat/chat.html
