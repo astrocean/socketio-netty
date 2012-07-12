@@ -92,7 +92,7 @@ public class JsonpIO extends GenericIO {
 			return;
 		}
 
-		prepareHearbeat();
+		prepareHeartbeat();
 
 		Channel chan = ctx.getChannel();
 		if (!chan.isOpen()) {
