@@ -1,5 +1,7 @@
 package com.yongboy.socketio.server.transport;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -77,16 +79,17 @@ public abstract class GenericIO extends EventClientIO implements IOClient {
 	}
 
 	protected void scheduleClearTask(final IOHandler handler) {
-		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTask(
-				getSessionID(), handler));
+		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTaskSpeed(
+				getSessionID(), handler),
+				SocketIOManager.option.heartbeat_timeout, TimeUnit.SECONDS);
 	}
 
 	public void scheduleRemoveTask(final IOHandler handler) {
-		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTask(
-				getSessionID(), handler, true));
+		scheduledFuture = SocketIOManager.scheduleClearTask(new ClearTaskSpeed(
+				getSessionID(), handler), 1L, TimeUnit.MILLISECONDS);
 	}
 
-	protected void prepareHearbeat() {
+	protected void prepareHeartbeat() {
 		if (this.beat > 0) {
 			this.beat++;
 		}
