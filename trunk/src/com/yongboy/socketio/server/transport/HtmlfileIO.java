@@ -34,14 +34,12 @@ public class HtmlfileIO extends GenericIO {
 	 */
 	@Override
 	public void heartbeat(final IOHandler handler) {
-		prepareHearbeat();
+		prepareHeartbeat();
+		scheduleClearTask(handler);
 
-		// 25秒为默认触发值，但触发之后，客户端会发起新的一个心跳检测连接
 		SocketIOManager.schedule(new Runnable() {
 			@Override
 			public void run() {
-				scheduleClearTask(handler);
-				
 				__write(String.format(TEMPLATE, "2::"));
 			}
 		});
@@ -88,17 +86,17 @@ public class HtmlfileIO extends GenericIO {
 	@Override
 	public void sendEncoded(String message) {
 		this.queue.offer(message);
-		if (!this.open){
+		if (!this.open) {
 			return;
 		}
-		
+
 		while (true) {
 			String msg = this.queue.poll();
 			if (msg == null)
 				break;
-			
+
 			__write(String.format(TEMPLATE, msg.replaceAll("\"", "\\\"")));
-		}		
+		}
 	}
 
 	@Override

@@ -30,14 +30,13 @@ public class WebSocketIO extends GenericIO {
 	 */
 	@Override
 	public void heartbeat(final IOHandler handler) {
-		prepareHearbeat();
+		prepareHeartbeat();
+		scheduleClearTask(handler);
 
 		// 25秒为默认触发值，但触发之后，客户端会发起新的一个心跳检测连接
 		SocketIOManager.schedule(new Runnable() {
 			@Override
 			public void run() {
-				scheduleClearTask(handler);
-
 				Channel chan = ctx.getChannel();
 				if (chan.isOpen()) {
 					chan.write(new TextWebSocketFrame("2::"));
