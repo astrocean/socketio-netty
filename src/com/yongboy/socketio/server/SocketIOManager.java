@@ -25,7 +25,7 @@ public class SocketIOManager {
 	public static Option option = new Option();
 
 	private static final ScheduledExecutorService scheduledExecutorService = Executors
-			.newScheduledThreadPool(1);
+			.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2 + 1);
 
 	public static final Set<String> fobbiddenEvents = new HashSet<String>(
 			Arrays.asList("message,connect,disconnect,open,close,error,retry,reconnect"
@@ -42,7 +42,6 @@ public class SocketIOManager {
 		public int flash_policy_port = 10843;
 		public String transports = "websocket,jsonp-polling,xhr-polling";
 		public String Static = "static";
-		
 
 		{
 			ResourceBundle bundle = ResourceBundle.getBundle("socketio");
@@ -142,9 +141,15 @@ public class SocketIOManager {
 	 * @param runnable
 	 * @return
 	 */
+	@Deprecated
 	public static ScheduledFuture<?> scheduleClearTask(Runnable runnable) {
-		return scheduledExecutorService
-				.schedule(runnable, option.heartbeat_timeout, TimeUnit.SECONDS);
+		return scheduledExecutorService.schedule(runnable,
+				option.heartbeat_timeout, TimeUnit.SECONDS);
+	}
+
+	public static ScheduledFuture<?> scheduleClearTask(Runnable runnable,
+			long delay, TimeUnit unit) {
+		return scheduledExecutorService.schedule(runnable, delay, unit);
 	}
 
 	/**
