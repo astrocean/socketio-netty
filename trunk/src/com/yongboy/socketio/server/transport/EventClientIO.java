@@ -36,10 +36,11 @@ abstract class EventClientIO implements IOClient {
 	 * @time 2012-4-4
 	 * @version 1.0
 	 */
+	@Deprecated
 	protected static class ClearTask implements Runnable {
-		private String sessionId;
+		protected String sessionId;
 		private boolean clearSession = false;
-		private IOHandler handler = null;
+		protected IOHandler handler = null;
 
 		public ClearTask(String sessionId, final IOHandler handler) {
 			this.sessionId = sessionId;
@@ -82,6 +83,44 @@ abstract class EventClientIO implements IOClient {
 			if (client.isOpen()) {
 				log.debug("the client's open is " + client.isOpen());
 				return;
+			}
+
+			log.info("now remove the clients from store with sessionid "
+					+ sessionId);
+
+			if (handler != null) {
+				handler.OnDisconnect(client);
+			} else {
+				log.info("ioHandler is null");
+			}
+
+			client.disconnect();
+			store.remove(sessionId);
+		}
+	}
+	
+	/**
+	 * close the client right now
+	 * @author yongboy
+	 * @time 2012-7-12
+	 * @version 1.0
+	 */
+	protected static class ClearTaskSpeed extends ClearTask{
+		public ClearTaskSpeed(String sessionId, IOHandler handler) {
+			super(sessionId, handler);
+		}
+		
+		public void run(){
+			log.debug("entry ClearTask run method clearSession is and sessionId is " + sessionId);
+			Store store = SocketIOManager.getDefaultStore();
+			IOClient client = store.get(sessionId);
+			if (client == null) {
+				log.debug("the client is null");
+				return;
+			}
+
+			if (client.isOpen()) {
+				client.setOpen(false);
 			}
 
 			log.info("now remove the clients from store with sessionid "
