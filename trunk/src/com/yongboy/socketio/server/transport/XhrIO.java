@@ -95,7 +95,7 @@ public class XhrIO extends GenericIO {
 			return;
 		}
 
-		prepareHearbeat();
+		prepareHeartbeat();
 
 		Channel chan = ctx.getChannel();
 		if (!chan.isOpen()) {
