@@ -50,7 +50,7 @@ public abstract class IOHandlerAbs implements IOHandler {
 	protected void broadcast(IOClient current, String message) {
 		for (IOClient client : getClients()) {
 			if (current != null
-					&& current.getSessionID() == client.getSessionID())
+					&& current.getSessionID().equals(client.getSessionID()))
 				continue;
 
 			client.send(message);
