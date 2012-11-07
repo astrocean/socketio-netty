@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+encoding//src/com/yongboy/socketio/server/transport/GenericIO.java=UTF-8
+encoding//src/com/yongboy/socketio/server/transport/XhrIO.java=UTF-8
+encoding//test/com/yongboy/socketio/test/MultiServerDemo.java=UTF-8
